@@ -13,3 +13,5 @@ unhandled*.*
 scripts/
 *.wpr
 *.wpu
+*.code-workspace
+deploy_plugin.bat
