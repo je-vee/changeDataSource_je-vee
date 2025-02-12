@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-/***************************************************************************
- changeDataSource
+ changeDataSource_je-vee
+
+/
+***************************************************************************
+ Fork of: changeDataSource
                                  A QGIS plugin
  right click on layer tree to change layer datasource
                               -------------------
@@ -72,10 +75,10 @@ class changeDataSource(object):
 
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u'&changeDataSource')
+        self.menu = self.tr(u'&changeDataSource_je-vee')
         # TODO: We are going to let the user set this up in a future iteration
-        self.toolbar = self.iface.addToolBar(u'changeDataSource')
-        self.toolbar.setObjectName(u'changeDataSource')
+        self.toolbar = self.iface.addToolBar(u'changeDataSource_je-vee')
+        self.toolbar.setObjectName(u'changeDataSource_je-vee')
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -90,7 +93,7 @@ class changeDataSource(object):
         :rtype: QString
         """
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
-        return QCoreApplication.translate('changeDataSource', message)
+        return QCoreApplication.translate('changeDataSource_je-vee', message)
 
 
     def add_action(
@@ -172,7 +175,7 @@ class changeDataSource(object):
         icon_path = os.path.join(self.plugin_dir,"icon.png")
         self.add_action(
             icon_path,
-            text=self.tr(u'changeDataSource'),
+            text=self.tr(u'changeDataSource_je-vee'),
             callback=self.run,
             parent=self.iface.mainWindow())
         self.changeDSActionVector = QAction(QIcon(os.path.join(self.plugin_dir,"icon.png")), u"Change vector datasource", self.iface )
@@ -233,7 +236,7 @@ class changeDataSource(object):
 
         for action in self.actions:
             self.iface.removePluginVectorMenu(
-                self.tr(u'&changeDataSource'),
+                self.tr(u'&changeDataSource_je-vee'),
                 action)
             self.iface.removeToolBarIcon(action)
         # remove the toolbar
@@ -256,7 +259,11 @@ class changeDataSource(object):
         self.dlg.layerTable.setHorizontalHeaderItem(4,QTableWidgetItem(""))
 
         layersPropLayerDef = "Point?crs=epsg:3857&field=layerid:string(200)&field=layername:string(200)&field=layertype:string(20)&field=geometrytype:string(20)&field=provider:string(20)&field=datasource:string(250)&field=authid:string(20)"
-        self.layersPropLayer = QgsVectorLayer(layersPropLayerDef,"layerTable","memory")
+
+        # Changed layername to be more distinguishable and avoid any conflicts when removing
+        layerTableName = "cDS_layerTable" 
+        
+        self.layersPropLayer = QgsVectorLayer(layersPropLayerDef, layerTableName,"memory")
         dummyFeatures = []
 
         self.dlg.layerTable.horizontalHeader().setDefaultAlignment(Qt.AlignLeft)
@@ -266,44 +273,92 @@ class changeDataSource(object):
         self.dlg.layerTable.hideColumn(0)
         self.dlg.layerTable.hideColumn(5)
         self.dlg.layerTable.hideColumn(6)
-        lr = QgsProject.instance()
+        # Get the instance of the project
+        projectInstance = QgsProject.instance()
 
-        for layer in lr.mapLayers().values():
-            if layer.type() == QgsMapLayer.VectorLayer or layer.type() == QgsMapLayer.RasterLayer:
+        # Retrieve all layers from the project
+        allLayers = projectInstance.mapLayers().values()
+        
+        # Separate layers into those with 'ogr' provider and others
+        ogrLayers = []
+        nonOgrLayers = []
+
+        for layer in allLayers:
+            # Checks that the layer is not the same as this script creates
+            if layer.name() == layerTableName:
+                # If found, removes from project
+                # TODO: Check performance hit and possibly remove
+                projectInstance.removeMapLayer(layer.id())
+            # Checks to consider only Vectors and Rasters
+            elif layer.type() in (QgsMapLayer.VectorLayer, QgsMapLayer.RasterLayer):
                 provider = layer.dataProvider().name()
-                source = layer.source()
-                cellStyle = ""
                 if provider:
-                    lastRow = self.dlg.layerTable.rowCount()
-                    self.dlg.layerTable.insertRow(lastRow)
-                    self.dlg.layerTable.setCellWidget(lastRow,0,self.getLabelWidget(layer.id(),0,style = cellStyle))
-                    self.dlg.layerTable.setCellWidget(lastRow,1,self.getLabelWidget(layer.name(),1,style = cellStyle))
-                    self.dlg.layerTable.setCellWidget(lastRow,2,self.getLabelWidget(provider,2,style = cellStyle))
-                    self.dlg.layerTable.setCellWidget(lastRow,3,self.getLabelWidget(source,3,style = cellStyle))
-                    self.dlg.layerTable.setCellWidget(lastRow,4,self.getButtonWidget(lastRow))
-
-                    layerDummyFeature = QgsFeature(self.layersPropLayer.fields())
-                    if layer.type() == QgsMapLayer.VectorLayer:
-                        type = "vector"
-                        enumGeometryTypes =('Point','Line','Polygon','UnknownGeometry','NoGeometry')
-                        geometry = enumGeometryTypes[layer.geometryType()]
+                    # Stores layer, provider and source
+                    obj = {"layer": layer, "provider_name": provider, "source": layer.source()}
+                    
+                    # Separation
+                    if provider == 'ogr':
+                        ogrLayers.append(obj)
                     else:
-                        type = "raster"
-                        geometry = ""
-                    dummyGeometry = QgsGeometry.fromPointXY(self.iface.mapCanvas().center())
-                    layerDummyFeature.setGeometry(dummyGeometry)
-                    layerDummyFeature.setAttributes([layer.id(), layer.name(), type, geometry, provider, source, layer.crs().authid()])
-                    dummyFeatures.append(layerDummyFeature)
+                        nonOgrLayers.append(obj)
+
+        # Sort layers with 'ogr' provider by name, then source
+        ogrLayers.sort(key=lambda l: (l.get("name"), l.get("source")))
+        
+        # Sort non-'ogr' layers first by source provider name, name, then source
+        nonOgrLayers.sort(key=lambda l: (l.get("provider_name"), l.get("name"), l.get("source")))
+
+        # Combine the sorted layers back together
+        combinedLayers = ogrLayers + nonOgrLayers
+        
+        # Checks not needed since they happen earlier
+        for layer in combinedLayers:
+            layerOriginal = layer
+            layer = layer.get("layer")
+            provider = layerOriginal.get("provider_name")
+            source = layerOriginal.get("source")
+            cellStyle = ""
+            # print(layer.id())
+
+            lastRow = self.dlg.layerTable.rowCount()
+            self.dlg.layerTable.insertRow(lastRow)
+            # Sets layer-id
+            self.dlg.layerTable.setCellWidget(lastRow,0,self.getLabelWidget(layer.id(),0,style = cellStyle))
+            # Sets layer name
+            self.dlg.layerTable.setCellWidget(lastRow,1,self.getLabelWidget(str(layer.name()),1,style = cellStyle))
+            # Sets provider
+            self.dlg.layerTable.setCellWidget(lastRow,2,self.getLabelWidget(str(provider),2,style = cellStyle))
+            # Sets source
+            self.dlg.layerTable.setCellWidget(lastRow,3,self.getLabelWidget(str(source),3,style = cellStyle))
+            # Sets ?
+            self.dlg.layerTable.setCellWidget(lastRow,4,self.getButtonWidget(lastRow))
+
+            layerDummyFeature = QgsFeature(self.layersPropLayer.fields())
+            if layer.type() == QgsMapLayer.VectorLayer:
+                type = "vector"
+                enumGeometryTypes =('Point','Line','Polygon','UnknownGeometry','NoGeometry')
+                geometry = enumGeometryTypes[layer.geometryType()]
+            else:
+                type = "raster"
+                geometry = ""
+            dummyGeometry = QgsGeometry.fromPointXY(self.iface.mapCanvas().center())
+            layerDummyFeature.setGeometry(dummyGeometry)
+            layerDummyFeature.setAttributes([layer.id(), layer.name(), type, geometry, provider, source, layer.crs().authid()])
+            dummyFeatures.append(layerDummyFeature)
 
         self.layersPropLayer.dataProvider().addFeatures(dummyFeatures)
-        lr.addMapLayer(self.layersPropLayer)
+        projectInstance.addMapLayer(self.layersPropLayer)
         QgsProject.instance().layerTreeRoot().findLayer(self.layersPropLayer.id()).setItemVisibilityChecked(False)
+
         self.dlg.mFieldExpressionWidget.setLayer(self.layersPropLayer)
         self.dlg.layerTable.resizeColumnToContents(1)
         self.dlg.layerTable.horizontalHeader().setSectionResizeMode(2,QHeaderView.ResizeToContents)
         self.dlg.layerTable.setColumnWidth(4,30)
-        self.dlg.layerTable.setShowGrid(False)
+        self.dlg.layerTable.setShowGrid(True)
         self.dlg.layerTable.horizontalHeader().setSectionResizeMode(3,QHeaderView.Stretch) # was QHeaderView.Stretch
+        
+        # Trying to make the table sortable
+        # self.dlg.layerTable.setSortingEnabled(True)
 
     def getButtonWidget(self,row):
         edit = QPushButton("...",parent = self.dlg.layerTable)
