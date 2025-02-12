@@ -27,19 +27,20 @@ from __future__ import print_function
 from __future__ import absolute_import
 from builtins import range
 from builtins import object
+import os.path
+
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtXml import *
 from PyQt5.QtWidgets import *
 from qgis.core import *
+from qgis.gui import QgsMessageBar
+
 # Initialize Qt resources from file resources.py
 from . import resources_rc
 # Import the code for the dialog
 from .changeDataSource_dialog import changeDataSourceDialog,dataSourceBrowser
 from .setdatasource import setDataSource
-from qgis.gui import QgsMessageBar
-import os.path
-
 
 class changeDataSource(object):
     """QGIS Plugin Implementation."""
@@ -75,10 +76,10 @@ class changeDataSource(object):
 
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u'&changeDataSource_je-vee')
+        self.menu = self.tr('&changeDataSource_je-vee')
         # TODO: We are going to let the user set this up in a future iteration
-        self.toolbar = self.iface.addToolBar(u'changeDataSource_je-vee')
-        self.toolbar.setObjectName(u'changeDataSource_je-vee')
+        self.toolbar = self.iface.addToolBar('changeDataSource_je-vee')
+        self.toolbar.setObjectName('changeDataSource_je-vee')
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -94,7 +95,6 @@ class changeDataSource(object):
         """
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
         return QCoreApplication.translate('changeDataSource_je-vee', message)
-
 
     def add_action(
         self,
@@ -175,13 +175,25 @@ class changeDataSource(object):
         icon_path = os.path.join(self.plugin_dir,"icon.png")
         self.add_action(
             icon_path,
-            text=self.tr(u'changeDataSource_je-vee'),
+            text=self.tr('changeDataSource_je-vee'),
             callback=self.run,
             parent=self.iface.mainWindow())
-        self.changeDSActionVector = QAction(QIcon(os.path.join(self.plugin_dir,"icon.png")), u"Change vector datasource", self.iface )
-        self.changeDSActionRaster = QAction(QIcon(os.path.join(self.plugin_dir,"icon.png")), u"Change raster datasource", self.iface )
-        self.iface.addCustomActionForLayerType(self.changeDSActionVector,"", QgsMapLayer.VectorLayer,True)
-        self.iface.addCustomActionForLayerType(self.changeDSActionRaster,"", QgsMapLayer.RasterLayer,True)
+        self.changeDSActionVector = QAction(
+            QIcon(os.path.join(self.plugin_dir, "icon.png")),
+            "Change vector datasource",
+            self.iface,
+        )
+        self.changeDSActionRaster = QAction(
+            QIcon(os.path.join(self.plugin_dir, "icon.png")),
+            "Change raster datasource",
+            self.iface,
+        )
+        self.iface.addCustomActionForLayerType(
+            self.changeDSActionVector, "", QgsMapLayer.VectorLayer, True
+        )
+        self.iface.addCustomActionForLayerType(
+            self.changeDSActionRaster, "", QgsMapLayer.RasterLayer, True
+        )
         self.changeDSTool = setDataSource(self, )
         self.browserDialog = dataSourceBrowser()
         self.dlg.handleBadLayersCheckbox.hide()
@@ -198,13 +210,13 @@ class changeDataSource(object):
         self.dlg.buttonBox.button(QDialogButtonBox.Reset).clicked.connect(lambda: self.buttonBoxHub("Reset"))
         self.dlg.buttonBox.button(QDialogButtonBox.Apply).clicked.connect(lambda: self.buttonBoxHub("Apply"))
         self.dlg.buttonBox.button(QDialogButtonBox.Cancel).clicked.connect(lambda: self.buttonBoxHub("Cancel"))
-        #self.dlg.reconcileButton.clicked.connect(self.reconcileUnhandled)
+        # self.dlg.reconcileButton.clicked.connect(self.reconcileUnhandled)
         self.dlg.closedDialog.connect(self.removeServiceLayers)
-        #self.dlg.handleBadLayersCheckbox.stateChanged.connect(self.handleBadLayerOption)
-        #self.iface.initializationCompleted.connect(self.initHandleBadLayers)
-        #self.iface.projectRead.connect(self.recoverUnhandledLayers)
+        # self.dlg.handleBadLayersCheckbox.stateChanged.connect(self.handleBadLayerOption)
+        # self.iface.initializationCompleted.connect(self.initHandleBadLayers)
+        # self.iface.projectRead.connect(self.recoverUnhandledLayers)
         self.iface.newProjectCreated.connect(self.updateSession)
-        #self.initHandleBadLayers()
+        # self.initHandleBadLayers()
 
     def setEmbeddedLayer(self,layer):
         root = QgsProject.instance().layerTreeRoot()
@@ -214,18 +226,20 @@ class changeDataSource(object):
     def updateSession(self):
         self.session  += 1
 
-    def activateSelection(self,idx):
+    def activateSelection(self):
         indexes = []
         for selectionRange in self.dlg.layerTable.selectedRanges():
             indexes.extend(list(range(selectionRange.topRow(), selectionRange.bottomRow()+1)))
-        if indexes != []:
+        if indexes:
             self.dlg.onlySelectedCheck.setChecked(True)
         else:
             self.dlg.onlySelectedCheck.setChecked(False)
 
     def changeLayerDS(self):
         self.dlg.hide()
-        self.changeDSTool.openDataSourceDialog(self.iface.layerTreeView().currentLayer())#, self.badLayersHandler)
+        self.changeDSTool.openDataSourceDialog(
+            self.iface.layerTreeView().currentLayer()
+        )  # , self.badLayersHandler)
 
     def unload(self):
         """
@@ -236,17 +250,22 @@ class changeDataSource(object):
 
         for action in self.actions:
             self.iface.removePluginVectorMenu(
-                self.tr(u'&changeDataSource_je-vee'),
+                self.tr('&changeDataSource_je-vee'),
                 action)
             self.iface.removeToolBarIcon(action)
         # remove the toolbar
         del self.toolbar
 
-    def populateLayerTable(self, onlyUnhandled = None):
+    def populateLayerTable(self):
         '''
         method to write layer info in layer table
         '''
-        self.changeDSTool.populateComboBox(self.dlg.datasourceCombo,[""]+list(self.changeDSTool.vectorDSList.keys())+list(self.changeDSTool.rasterDSList.keys()))
+        self.changeDSTool.populateComboBox(
+            self.dlg.datasourceCombo,
+            [""]
+            + list(self.changeDSTool.vectorDSList.keys())
+            + list(self.changeDSTool.rasterDSList.keys()),
+        )
         self.dlg.layerTable.clear()
         for row in range(self.dlg.layerTable.rowCount()):
             self.dlg.layerTable.removeRow(row)
@@ -261,8 +280,8 @@ class changeDataSource(object):
         layersPropLayerDef = "Point?crs=epsg:3857&field=layerid:string(200)&field=layername:string(200)&field=layertype:string(20)&field=geometrytype:string(20)&field=provider:string(20)&field=datasource:string(250)&field=authid:string(20)"
 
         # Changed layername to be more distinguishable and avoid any conflicts when removing
-        layerTableName = "cDS_layerTable" 
-        
+        layerTableName = "cDS_layerTable"
+
         self.layersPropLayer = QgsVectorLayer(layersPropLayerDef, layerTableName,"memory")
         dummyFeatures = []
 
@@ -278,7 +297,7 @@ class changeDataSource(object):
 
         # Retrieve all layers from the project
         allLayers = projectInstance.mapLayers().values()
-        
+
         # Separate layers into those with 'ogr' provider and others
         ogrLayers = []
         nonOgrLayers = []
@@ -295,7 +314,7 @@ class changeDataSource(object):
                 if provider:
                     # Stores layer, provider and source
                     obj = {"layer": layer, "provider_name": provider, "source": layer.source()}
-                    
+
                     # Separation
                     if provider == 'ogr':
                         ogrLayers.append(obj)
@@ -304,13 +323,13 @@ class changeDataSource(object):
 
         # Sort layers with 'ogr' provider by name, then source
         ogrLayers.sort(key=lambda l: (l.get("name"), l.get("source")))
-        
+
         # Sort non-'ogr' layers first by source provider name, name, then source
         nonOgrLayers.sort(key=lambda l: (l.get("provider_name"), l.get("name"), l.get("source")))
 
         # Combine the sorted layers back together
         combinedLayers = ogrLayers + nonOgrLayers
-        
+
         # Checks not needed since they happen earlier
         for layer in combinedLayers:
             layerOriginal = layer
@@ -335,15 +354,25 @@ class changeDataSource(object):
 
             layerDummyFeature = QgsFeature(self.layersPropLayer.fields())
             if layer.type() == QgsMapLayer.VectorLayer:
-                type = "vector"
+                layerType = "vector"
                 enumGeometryTypes =('Point','Line','Polygon','UnknownGeometry','NoGeometry')
                 geometry = enumGeometryTypes[layer.geometryType()]
             else:
-                type = "raster"
+                layerType = "raster"
                 geometry = ""
             dummyGeometry = QgsGeometry.fromPointXY(self.iface.mapCanvas().center())
             layerDummyFeature.setGeometry(dummyGeometry)
-            layerDummyFeature.setAttributes([layer.id(), layer.name(), type, geometry, provider, source, layer.crs().authid()])
+            layerDummyFeature.setAttributes(
+                [
+                    layer.id(),
+                    layer.name(),
+                    layerType,
+                    geometry,
+                    provider,
+                    source,
+                    layer.crs().authid(),
+                ]
+            )
             dummyFeatures.append(layerDummyFeature)
 
         self.layersPropLayer.dataProvider().addFeatures(dummyFeatures)
@@ -356,7 +385,7 @@ class changeDataSource(object):
         self.dlg.layerTable.setColumnWidth(4,30)
         self.dlg.layerTable.setShowGrid(True)
         self.dlg.layerTable.horizontalHeader().setSectionResizeMode(3,QHeaderView.Stretch) # was QHeaderView.Stretch
-        
+
         # Trying to make the table sortable
         # self.dlg.layerTable.setSortingEnabled(True)
 
@@ -373,11 +402,17 @@ class changeDataSource(object):
         layerId = self.dlg.layerTable.cellWidget(row,0).text()
         layerName = self.dlg.layerTable.cellWidget(row,1).text()
         newType,newProvider,newDatasource = dataSourceBrowser.uri(title = layerName)
-        #check if databrowser return a incompatible layer type
+        # check if databrowser return a incompatible layer type
         rowLayer = QgsProject.instance().mapLayer(layerId)
         enumLayerTypes = ("vector","raster","plugin")
         if newType and enumLayerTypes[rowLayer.type()] != newType:
-            self.iface.messageBar().pushMessage("Error", "Layer type mismatch %s/%s" % (enumLayerTypes[rowLayer.type()], newType), level=QgsMessageBar.CRITICAL, duration=4)
+            self.iface.messageBar().pushMessage(
+                "Error",
+                "Layer type mismatch %s/%s"
+                % (enumLayerTypes[rowLayer.type()], newType),
+                level=QgsMessageBar.CRITICAL,
+                duration=4,
+            )
             return None
         if newDatasource:
             self.dlg.layerTable.cellWidget(row,3).setText(newDatasource)
@@ -402,7 +437,7 @@ class changeDataSource(object):
         edit.column = column
         edit.changed = None
         if column == 1:
-                edit.setReadOnly(True)
+            edit.setReadOnly(True)
         else:
             edit.textChanged.connect(lambda: self.highlightCell(edit,"QLineEdit{background: yellow;}"))
         edit.setCursorPosition(0)
@@ -421,7 +456,7 @@ class changeDataSource(object):
         context = QgsExpressionContext()
         scope = QgsExpressionContextScope()
         context.appendScope(scope)
-        #build replace list
+        # build replace list
         if self.dlg.onlySelectedCheck.isChecked():
             for selectionRange in self.dlg.layerTable.selectedRanges():
                 indexes.extend(list(range(selectionRange.topRow(), selectionRange.bottomRow()+1)))
@@ -432,9 +467,9 @@ class changeDataSource(object):
                 indexes.append(row)
                 self.replaceList.append(QgsProject.instance().mapLayer(self.dlg.layerTable.cellWidget(row,0).text()))
         for row in indexes:
-            layerId = self.dlg.layerTable.cellWidget(row,0)
+            # layerId = self.dlg.layerTable.cellWidget(row,0) # => TODO: Unused variable
             cell = self.dlg.layerTable.cellWidget(row,3)
-            orig = cell.text()
+            # orig = cell.text() # => TODO: Unused variable
             if self.dlg.mFieldExpressionWidget.isValidExpression():
                 exp = QgsExpression(self.dlg.mFieldExpressionWidget.currentText())
                 scope.setFeature(next(self.layersPropLayer.getFeatures(QgsFeatureRequest(row+1))))
@@ -454,7 +489,7 @@ class changeDataSource(object):
             rowProviderCell = self.dlg.layerTable.cellWidget(row,2)
             rowDatasourceCell = self.dlg.layerTable.cellWidget(row,3)
             rowLayerID = self.dlg.layerTable.cellWidget(row,0).text()
-            rowLayerName = self.dlg.layerTable.cellWidget(row,1).text()
+            # rowLayerName = self.dlg.layerTable.cellWidget(row,1).text() # => TODO: Unused variable
             rowProvider = rowProviderCell.text()
             rowDatasource = rowDatasourceCell.text()
             rowLayer = QgsProject.instance().mapLayer(rowLayerID)
@@ -485,7 +520,6 @@ class changeDataSource(object):
             QgsProject.instance().removeMapLayer(self.layersPropLayer.id())
         except:
             pass
-
 
     def buttonBoxHub(self,kod):
         '''
