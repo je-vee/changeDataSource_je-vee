@@ -200,8 +200,9 @@ class changeDataSource(object):
         )
         self.changeDSTool = setDataSource(self, )
         self.browserDialog = dataSourceBrowser()
-        self.dlg.handleBadLayersCheckbox.hide()
-        self.dlg.reconcileButton.hide()
+        # self.dlg.hideNonOGRCheckbox.hide()
+        # self.dlg.handleBadLayersCheckbox.hide()
+        # self.dlg.reconcileButton.hide()
 
         self.connectSignals()
         self.session  = 0
@@ -217,6 +218,7 @@ class changeDataSource(object):
         # self.dlg.reconcileButton.clicked.connect(self.reconcileUnhandled)
         self.dlg.closedDialog.connect(self.removeServiceLayers)
         # self.dlg.handleBadLayersCheckbox.stateChanged.connect(self.handleBadLayerOption)
+        self.dlg.hideNonOGRCheckbox.stateChanged.connect(self.hideNonOGRCheckboxOption)
         # self.iface.initializationCompleted.connect(self.initHandleBadLayers)
         # self.iface.projectRead.connect(self.recoverUnhandledLayers)
         self.iface.newProjectCreated.connect(self.updateSession)
@@ -524,6 +526,27 @@ class changeDataSource(object):
             QgsProject.instance().removeMapLayer(self.layersPropLayer.id())
         except:
             pass
+
+    def hideNonOGRCheckboxOption(self, state):
+        # Method to hide or show non OGR layers according to checkbox
+        if state == Qt.Checked:
+            self.hideNonOGR()
+        else:
+            self.showAll()
+
+    def hideNonOGR(self):
+        # Method to hide non OGR layers
+        for row in range(self.dlg.layerTable.rowCount()):
+            layerId = self.dlg.layerTable.cellWidget(row, 0).text()
+            rowLayer = QgsProject.instance().mapLayer(layerId)
+            if rowLayer.providerType() != 'ogr':
+                self.dlg.layerTable.hideRow(row)
+
+    def showAll(self):
+        # Method to show all layers
+        for row in range(self.dlg.layerTable.rowCount()):
+            self.dlg.layerTable.showRow(row)
+
 
     def buttonBoxHub(self,kod):
         '''

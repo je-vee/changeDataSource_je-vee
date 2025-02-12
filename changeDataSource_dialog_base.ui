@@ -130,6 +130,13 @@
       </spacer>
      </item>
      <item>
+       <widget class="QCheckBox" name="hideNonOGRCheckbox">
+        <property name="text">
+         <string>Hide Non OGR Layers</string>
+        </property>
+       </widget>
+      </item>
+     <item>
       <widget class="QCheckBox" name="handleBadLayersCheckbox">
        <property name="text">
         <string>Handle bad layers</string>

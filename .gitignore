@@ -16,3 +16,4 @@ scripts/
 *.code-workspace
 deploy_plugin.bat
 pylintrc
+*.old
