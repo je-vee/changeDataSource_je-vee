@@ -1,1 +1,1 @@
-the plugin allows to change the datasources of the loaded layers. The operation can be performed right clicking on legend items for single layer or globally on a summary table accessible clicking on toolbar plugin icon.
+The plugin allows to change the datasources of the loaded layers. The operation can be performed right clicking on legend items for single layer or globally on a summary table by clicking on toolbar plugin icon. The plugin takes control of bad layers handling allowing to specify valid datasources working on project
