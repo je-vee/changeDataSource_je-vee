@@ -73,6 +73,10 @@ class changeDataSource(object):
 
         # Create the dialog (after translation) and keep reference
         self.dlg = changeDataSourceDialog()
+        
+        # Adds button to maximise the dialogue and enables resizing
+        self.dlg.setWindowFlags(Qt.Window | Qt.WindowMaximizeButtonHint | Qt.WindowCloseButtonHint)
+        self.dlg.setSizeGripEnabled(True)
 
         # Declare instance attributes
         self.actions = []
