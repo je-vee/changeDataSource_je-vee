@@ -7,13 +7,13 @@
 # This file should be included when you package your plugin.# Mandatory items:
 
 [general]
-name=changeDataSource
+name=changeDataSource_je-vee
 qgisMinimumVersion=3.0
 description=Right click on layer tree to change single layer datasource of click on icon to change datasources globally
 version=3.1
-author=enrico ferreguti
-email=enricofer@gmail.com
-about= The plugin allows to change the datasources of the loaded layers. The operation can be performed right clicking on legend items for single layer or globally on a summary table by clicking on toolbar plugin icon. The plugin takes control of bad layers handling allowing to specify valid datasources working on project
+author=enrico ferreguti (fork by je-vee)
+email=enricofer@gmail.com (fork by je-vee)
+about=The plugin allows to change the datasources of the loaded layers. The operation can be performed right clicking on legend items for single layer or globally on a summary table by clicking on toolbar plugin icon. The plugin takes control of bad layers handling allowing to specify valid datasources working on project
 
 # End of mandatory metadata
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
- changeDataSource
+ changeDataSource_je-vee
                                  A QGIS plugin
  right click on layer tree to change layer datasource
                              -------------------
