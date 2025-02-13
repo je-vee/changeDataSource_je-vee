@@ -44,6 +44,19 @@ from . import resources_rc
 from .changeDataSource_dialog import changeDataSourceDialog,dataSourceBrowser
 from .setdatasource import setDataSource
 
+# ==============================
+layerColumnCount = 6
+
+layerIdColumnNum = 0
+layerNameColumnNum = 1
+extensionColumnNum = 2
+providerColumnNum = 3 # Was nr 2
+dataSourceColumnNum = 4 # Was nr 3
+
+extensionColumnWidth = 90
+providerColumnWidth = 80
+# ==============================
+
 class changeDataSource(object):
     """QGIS Plugin Implementation."""
 
@@ -246,7 +259,7 @@ class changeDataSource(object):
 
     def updateSession(self):
         """
-        Increases the session number by one. This is used to keep track of how many times a project has been loaded or saved.
+        Increases the session number by one. This is used to keep track of how many times a project has been loaded or saved
         """
         self.session += 1
 
@@ -294,14 +307,16 @@ class changeDataSource(object):
         for row in range(self.dlg.layerTable.rowCount()):
             self.dlg.layerTable.removeRow(row)
         self.dlg.layerTable.setRowCount(0)
-        self.dlg.layerTable.setColumnCount(5)
+
+        self.dlg.layerTable.setColumnCount(layerColumnCount)
         self.dlg.layerTable.setHorizontalHeaderItem(0,QTableWidgetItem("ID"))
         self.dlg.layerTable.setHorizontalHeaderItem(1,QTableWidgetItem("Layer Name"))
-        self.dlg.layerTable.setHorizontalHeaderItem(2,QTableWidgetItem("Type"))
-        self.dlg.layerTable.setHorizontalHeaderItem(3,QTableWidgetItem("Data source"))
-        self.dlg.layerTable.setHorizontalHeaderItem(4,QTableWidgetItem(""))
+        self.dlg.layerTable.setHorizontalHeaderItem(2,QTableWidgetItem("Extension"))
+        self.dlg.layerTable.setHorizontalHeaderItem(3,QTableWidgetItem("Provider"))
+        self.dlg.layerTable.setHorizontalHeaderItem(4,QTableWidgetItem("Data Source"))
+        self.dlg.layerTable.setHorizontalHeaderItem(5,QTableWidgetItem(""))
 
-        layersPropLayerDef = "Point?crs=epsg:3857&field=layerid:string(200)&field=layername:string(200)&field=layertype:string(20)&field=geometrytype:string(20)&field=provider:string(20)&field=datasource:string(250)&field=authid:string(20)"
+        layersPropLayerDef = "Point?crs=epsg:3857&field=layerid:string(200)&field=layername:string(200)&field=layertype:string(20)&field=geometrytype:string(20)&field=provider:string(20)&field=datasource:string(250)&field=authid:string(20)&field=source_ext:string(20)"
 
         # Changed layername to be more distinguishable and avoid any conflicts when removing
         layerTableName = "cDS_layerTable"
@@ -314,8 +329,8 @@ class changeDataSource(object):
         self.dlg.layerTable.horizontalHeader().setSectionsClickable(False)
 
         self.dlg.layerTable.hideColumn(0)
-        self.dlg.layerTable.hideColumn(5)
-        self.dlg.layerTable.hideColumn(6)
+        self.dlg.layerTable.hideColumn(layerColumnCount)
+        self.dlg.layerTable.hideColumn(layerColumnCount+1)
         # Get the instance of the project
         projectInstance = QgsProject.instance()
 
@@ -358,25 +373,39 @@ class changeDataSource(object):
         for layer in combinedLayers:
             layerOriginal = layer
             layer = layer.get("layer")
-            provider = layerOriginal.get("provider_name")
+            provider = layerOriginal.get("provider_name") 
+            provider = provider if provider != 'wms' else provider.upper()
             source = layerOriginal.get("source")
+            source_ext = os.path.splitext(source)[1] if provider == 'ogr' else 'WEB'
+            source_ext = source_ext.split('|')[0] if '|' in source_ext else source_ext
             cellStyle = ""
             # print(layer.id())
 
             lastRow = self.dlg.layerTable.rowCount()
             self.dlg.layerTable.insertRow(lastRow)
             # Sets layer-id
+            # (No column name, is hidden later)
             self.dlg.layerTable.setCellWidget(lastRow,0,self.getLabelWidget(layer.id(),0,style = cellStyle))
             # Sets layer name
+            # Column "Layer Name"
             self.dlg.layerTable.setCellWidget(lastRow,1,self.getLabelWidget(str(layer.name()),1,style = cellStyle))
-            # Sets provider
-            self.dlg.layerTable.setCellWidget(lastRow,2,self.getLabelWidget(str(provider),2,style = cellStyle))
-            # Sets source
-            self.dlg.layerTable.setCellWidget(lastRow,3,self.getLabelWidget(str(source),3,style = cellStyle))
-            # Sets ?
-            self.dlg.layerTable.setCellWidget(lastRow,4,self.getButtonWidget(lastRow))
 
-            layerDummyFeature = QgsFeature(self.layersPropLayer.fields())
+            # Column "Extension"
+            self.dlg.layerTable.setCellWidget(lastRow,2,self.getLabelWidget(str(source_ext),2,style = cellStyle))
+
+            # Sets provider
+            # Column "Provider"
+            self.dlg.layerTable.setCellWidget(lastRow,3,self.getLabelWidget(str(provider),3,style = cellStyle))
+            # Sets source
+            # Column "Data Source"
+            self.dlg.layerTable.setCellWidget(lastRow,4,self.getLabelWidget(str(source),4,style = cellStyle))
+            # Sets the last button to browse the folder?
+            self.dlg.layerTable.setCellWidget(lastRow,5,self.getButtonWidget(lastRow))
+
+            layerDummyFields = self.layersPropLayer.fields()
+            # layerDummyFields.append(QgsField("source_ext", QVariant.String))
+
+            layerDummyFeature = QgsFeature(layerDummyFields)
             if layer.type() == QgsMapLayer.VectorLayer:
                 layerType = "vector"
                 enumGeometryTypes =('Point','Line','Polygon','UnknownGeometry','NoGeometry')
@@ -395,6 +424,7 @@ class changeDataSource(object):
                     provider,
                     source,
                     layer.crs().authid(),
+                    source_ext,
                 ]
             )
             dummyFeatures.append(layerDummyFeature)
@@ -404,16 +434,41 @@ class changeDataSource(object):
         QgsProject.instance().layerTreeRoot().findLayer(self.layersPropLayer.id()).setItemVisibilityChecked(False)
 
         self.dlg.mFieldExpressionWidget.setLayer(self.layersPropLayer)
-        self.dlg.layerTable.resizeColumnToContents(1)
-        self.dlg.layerTable.horizontalHeader().setSectionResizeMode(2,QHeaderView.ResizeToContents)
-        self.dlg.layerTable.setColumnWidth(4,30)
-        self.dlg.layerTable.setShowGrid(True)
-        self.dlg.layerTable.horizontalHeader().setSectionResizeMode(3,QHeaderView.Stretch) # was QHeaderView.Stretch
+        # Layer name column
+        self.dlg.layerTable.resizeColumnToContents(layerNameColumnNum)
+        # Extension column
+        # TODO: Store in variable
+        self.dlg.layerTable.setColumnWidth(extensionColumnNum, extensionColumnWidth)
+        self.dlg.layerTable.horizontalHeader().setSectionResizeMode(extensionColumnNum,QHeaderView.Fixed)
+        # Provider column
+        # self.dlg.layerTable.horizontalHeader().setSectionResizeMode(providerColumnNum,QHeaderView.ResizeToContents)
+        # self.dlg.layerTable.resizeColumnToContents(providerColumnNum)
+        self.dlg.layerTable.setColumnWidth(providerColumnNum, providerColumnWidth)
+        self.dlg.layerTable.horizontalHeader().setSectionResizeMode(providerColumnNum,QHeaderView.Fixed) # was QHeaderView.Stretch
+        
+        # Data Source column
+        self.dlg.layerTable.setColumnWidth(dataSourceColumnNum,30)
+        self.dlg.layerTable.horizontalHeader().setSectionResizeMode(dataSourceColumnNum,QHeaderView.Stretch) # was QHeaderView.Stretch
 
+        # TODO: ?
+        self.dlg.layerTable.setShowGrid(True)
+        # TODO: Make the columns sortable and filterable?
         # Trying to make the table sortable
         # self.dlg.layerTable.setSortingEnabled(True)
 
     def getButtonWidget(self,row):
+        """
+        Creates a button widget for the specified row in the layer table.
+
+        The button is labeled with '...' and is configured to trigger the browseAction 
+        method when clicked. The button's size policy is set to Ignored for both 
+        horizontal and vertical directions
+
+        :param row: The row index in the layer table for which the button is created.
+        :type row: int
+        :return: A QPushButton widget configured to invoke browseAction on click.
+        :rtype: QPushButton
+        """
         edit = QPushButton("...",parent = self.dlg.layerTable)
         edit.setSizePolicy(QSizePolicy.Ignored,QSizePolicy.Ignored)
         edit.clicked.connect(lambda: self.browseAction(row))
@@ -423,8 +478,8 @@ class changeDataSource(object):
         '''
         Method to open qgis browser dialog to get new datasource/provider
         '''
-        layerId = self.dlg.layerTable.cellWidget(row,0).text()
-        layerName = self.dlg.layerTable.cellWidget(row,1).text()
+        layerId = self.dlg.layerTable.cellWidget(row, layerIdColumnNum).text()
+        layerName = self.dlg.layerTable.cellWidget(row, layerNameColumnNum).text()
         newType,newProvider,newDatasource = dataSourceBrowser.uri(title = layerName)
         # check if databrowser return a incompatible layer type
         rowLayer = QgsProject.instance().mapLayer(layerId)
@@ -439,9 +494,9 @@ class changeDataSource(object):
             )
             return None
         if newDatasource:
-            self.dlg.layerTable.cellWidget(row,3).setText(newDatasource)
+            self.dlg.layerTable.cellWidget(row, dataSourceColumnNum).setText(newDatasource)
         if newProvider:
-            self.dlg.layerTable.cellWidget(row,2).setText(newProvider)
+            self.dlg.layerTable.cellWidget(row, providerColumnNum).setText(newProvider)
 
     def getLabelWidget(self,txt,column, style = None):
         '''
@@ -450,8 +505,10 @@ class changeDataSource(object):
         edit = QLineEdit(parent = self.dlg.layerTable)
         idealWidth = QApplication.instance().fontMetrics().width(txt)
         edit.setMinimumWidth(idealWidth)
-        if column == 2:
-            edit.setMaximumWidth(60)
+        if column == extensionColumnNum:
+            edit.setMaximumWidth(extensionColumnWidth)
+        if column == providerColumnNum:
+            edit.setMaximumWidth(providerColumnWidth)
         edit.setText(txt)
         edit.setSizePolicy(QSizePolicy.Minimum,QSizePolicy.Ignored)
         if style:
@@ -460,7 +517,7 @@ class changeDataSource(object):
             edit.setStyleSheet("QLineEdit{background: rgba(0,190,0, 0%);}")
         edit.column = column
         edit.changed = None
-        if column == 1:
+        if column == layerNameColumnNum:
             edit.setReadOnly(True)
         else:
             edit.textChanged.connect(lambda: self.highlightCell(edit,"QLineEdit{background: yellow;}"))
@@ -490,14 +547,14 @@ class changeDataSource(object):
             for selectionRange in self.dlg.layerTable.selectedRanges():
                 indexes.extend(list(range(selectionRange.topRow(), selectionRange.bottomRow()+1)))
             for row in indexes:
-                self.replaceList.append(QgsProject.instance().mapLayer(self.dlg.layerTable.cellWidget(row,0).text()))
+                self.replaceList.append(QgsProject.instance().mapLayer(self.dlg.layerTable.cellWidget(row, layerIdColumnNum).text()))
         else:
             for row in range(0,self.dlg.layerTable.rowCount()):
                 indexes.append(row)
-                self.replaceList.append(QgsProject.instance().mapLayer(self.dlg.layerTable.cellWidget(row,0).text()))
+                self.replaceList.append(QgsProject.instance().mapLayer(self.dlg.layerTable.cellWidget(row, layerIdColumnNum).text()))
         for row in indexes:
-            # layerId = self.dlg.layerTable.cellWidget(row,0) # => TODO: Unused variable
-            cell = self.dlg.layerTable.cellWidget(row,3)
+            # layerId = self.dlg.layerTable.cellWidget(row, layerIdColumnNum) # => TODO: Unused variable
+            cell = self.dlg.layerTable.cellWidget(row, dataSourceColumnNum)
             # orig = cell.text() # => TODO: Unused variable
             if self.dlg.mFieldExpressionWidget.isValidExpression():
                 exp = QgsExpression(self.dlg.mFieldExpressionWidget.currentText())
@@ -507,7 +564,7 @@ class changeDataSource(object):
             else:
                 cell.setText(cell.text().replace(self.dlg.findEdit.text(),self.dlg.replaceEdit.text()))
             if self.dlg.datasourceCombo.currentText() != "":
-                self.dlg.layerTable.cellWidget(row,2).setText(self.dlg.datasourceCombo.currentText())
+                self.dlg.layerTable.cellWidget(row, providerColumnNum).setText(self.dlg.datasourceCombo.currentText())
 
     def applyDSChanges(self):#, reconcileUnhandled = False):
         '''
@@ -515,10 +572,10 @@ class changeDataSource(object):
         '''
 
         for row in range(0,self.dlg.layerTable.rowCount()):
-            rowProviderCell = self.dlg.layerTable.cellWidget(row,2)
-            rowDatasourceCell = self.dlg.layerTable.cellWidget(row,3)
-            rowLayerID = self.dlg.layerTable.cellWidget(row,0).text()
-            # rowLayerName = self.dlg.layerTable.cellWidget(row,1).text() # => TODO: Unused variable
+            rowProviderCell = self.dlg.layerTable.cellWidget(row, providerColumnNum)
+            rowDatasourceCell = self.dlg.layerTable.cellWidget(row, dataSourceColumnNum)
+            rowLayerID = self.dlg.layerTable.cellWidget(row, layerIdColumnNum).text()
+            # rowLayerName = self.dlg.layerTable.cellWidget(row, layerNameColumnNum).text() # => TODO: Unused variable
             rowProvider = rowProviderCell.text()
             rowDatasource = rowDatasourceCell.text()
             rowLayer = QgsProject.instance().mapLayer(rowLayerID)
@@ -653,6 +710,17 @@ class browseLineEdit(QLineEdit):
         )
 
     def resizeEvent(self, event):
+        """
+        Override the resizeEvent to reposition the button within the QLineEdit
+
+        This method is called whenever the browseLineEdit is resized. It calculates
+        the position of the embedded button based on the current size of the line
+        edit, ensuring that the button is correctly aligned to the right side of
+        the line edit
+
+        :param event: The resize event that triggered this method
+        :type event: QResizeEvent
+        """
         buttonSize = self.button.sizeHint()
         frameWidth = self.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
         self.button.move(

@@ -54,7 +54,7 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
 
     def openFileBrowser(self):
         '''
-        method used to open datasource browser dialog to get new provider/uri for the single layer
+        Method used to open datasource browser dialog to get new provider/uri for the single layer
         '''
         type,provider,fileName = dataSourceBrowser.uri()
         enumLayerTypes = ("vector","raster","plugin")
@@ -73,13 +73,13 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
 
     def selectDS(self,i):
         '''
-        method to catch datasource combo edits. No longer used. Stay here for future uses.
+        Method to catch datasource combo edits. No longer used. Stay here for future uses.
         '''
         pass
 
     def openDataSourceDialog(self,layer):#,badLayersHandler):
         '''
-        method to prep and show single datasource edit dialog
+        Method to prep and show single datasource edit dialog
         '''
         self.layer = layer
         #self.badLayersHandler = badLayersHandler
@@ -117,13 +117,13 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
 
     def cancelDialog(self):
         '''
-        landing method clicking cancel in button box
+        Landing method clicking cancel in button box
         '''
         self.hide()
 
     def exrecoverJoins(self, oldLayer, newLayer):
         '''
-        convenience method to rebuild joins if lost
+        Convenience method to rebuild joins if lost
         '''
         for layer in QgsMapLayerRegistry.mapLayers().values():
             if layer.type() == QgsMapLayer.VectorLayer:
@@ -136,14 +136,14 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
 
     def changeDataSourceAction(self):
         '''
-        landing method clicking apply in button box
+        Landing method clicking apply in button box
         '''
         self.applyDataSource(self.layer,self.selectDatasourceCombo.currentText().lower().replace(' ',''),self.lineEdit.toPlainText())
 
 
     def applyDataSource(self,applyLayer,newProvider,newDatasource):
         '''
-        method to verify applying datasource/provider before definitive change to avoid qgis crashes
+        Method to verify applying datasource/provider before definitive change to avoid qgis crashes
         '''
         self.hide()
         # new layer import
@@ -207,7 +207,7 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
 
     def populateComboBox(self,combo,list,dataPayload = None,predef = None,sort = None):
         '''
-        procedure to fill specified combobox with provided list
+        Procedure to fill specified combobox with provided list
         '''
         combo.blockSignals (True)
         combo.clear()
