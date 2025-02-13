@@ -514,13 +514,14 @@ class changeDataSource(object):
         if style:
             edit.setStyleSheet(style)
         else:
+            # Green
             edit.setStyleSheet("QLineEdit{background: rgba(0,190,0, 0%);}")
         edit.column = column
         edit.changed = None
         if column == layerNameColumnNum:
             edit.setReadOnly(True)
         else:
-            edit.textChanged.connect(lambda: self.highlightCell(edit,"QLineEdit{background: yellow;}"))
+            edit.textChanged.connect(lambda: self.highlightCell(edit,"QLineEdit{background: yellow;color: black;}"))
         edit.setCursorPosition(0)
         return edit
 
