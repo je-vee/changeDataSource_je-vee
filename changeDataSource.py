@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 """
+/***************************************************************************
  changeDataSource_je-vee
+ Fork of:
+ ***************************************************************************/
 
-/
-***************************************************************************
- Fork of: changeDataSource
+/***************************************************************************
+ changeDataSource
                                  A QGIS plugin
  right click on layer tree to change layer datasource
                               -------------------
@@ -73,7 +75,7 @@ class changeDataSource(object):
 
         # Create the dialog (after translation) and keep reference
         self.dlg = changeDataSourceDialog()
-        
+
         # Adds button to maximise the dialogue and enables resizing
         self.dlg.setWindowFlags(Qt.Window | Qt.WindowMaximizeButtonHint | Qt.WindowCloseButtonHint)
         self.dlg.setSizeGripEnabled(True)
@@ -81,7 +83,8 @@ class changeDataSource(object):
         # Declare instance attributes
         self.actions = []
         self.menu = self.tr('&changeDataSource_je-vee')
-        # TODO: We are going to let the user set this up in a future iteration
+
+        # OLD TODO: We are going to let the user set this up in a future iteration
         self.toolbar = self.iface.addToolBar('changeDataSource_je-vee')
         self.toolbar.setObjectName('changeDataSource_je-vee')
 
@@ -205,9 +208,12 @@ class changeDataSource(object):
         # self.dlg.reconcileButton.hide()
 
         self.connectSignals()
-        self.session  = 0
+        self.session = 0
 
     def connectSignals(self):
+        """
+        Connect all the buttons to actions
+        """
         self.changeDSActionVector.triggered.connect(self.changeLayerDS)
         self.changeDSActionRaster.triggered.connect(self.changeLayerDS)
         self.dlg.replaceButton.clicked.connect(self.replaceDS)
@@ -215,22 +221,34 @@ class changeDataSource(object):
         self.dlg.buttonBox.button(QDialogButtonBox.Reset).clicked.connect(lambda: self.buttonBoxHub("Reset"))
         self.dlg.buttonBox.button(QDialogButtonBox.Apply).clicked.connect(lambda: self.buttonBoxHub("Apply"))
         self.dlg.buttonBox.button(QDialogButtonBox.Cancel).clicked.connect(lambda: self.buttonBoxHub("Cancel"))
-        # self.dlg.reconcileButton.clicked.connect(self.reconcileUnhandled)
         self.dlg.closedDialog.connect(self.removeServiceLayers)
-        # self.dlg.handleBadLayersCheckbox.stateChanged.connect(self.handleBadLayerOption)
         self.dlg.hideNonOGRCheckbox.stateChanged.connect(self.hideNonOGRCheckboxOption)
+        self.iface.newProjectCreated.connect(self.updateSession)
+
+        # Originally commented out => not functioning
+        # self.dlg.reconcileButton.clicked.connect(self.reconcileUnhandled)
+        # self.dlg.handleBadLayersCheckbox.stateChanged.connect(self.handleBadLayerOption)
         # self.iface.initializationCompleted.connect(self.initHandleBadLayers)
         # self.iface.projectRead.connect(self.recoverUnhandledLayers)
-        self.iface.newProjectCreated.connect(self.updateSession)
         # self.initHandleBadLayers()
 
     def setEmbeddedLayer(self,layer):
+        """
+        Set the layer as embedded layer in the layer tree.
+        This means the layer will not be shown in the layer tree
+        but will be kept in the project
+        :param layer: The layer to set as embedded.
+        :type layer: QgsMapLayer
+        """
         root = QgsProject.instance().layerTreeRoot()
         layerNode = root.findLayer(layer.id())
         layerNode.setCustomProperty("embedded","")
 
     def updateSession(self):
-        self.session  += 1
+        """
+        Increases the session number by one. This is used to keep track of how many times a project has been loaded or saved.
+        """
+        self.session += 1
 
     def activateSelection(self):
         indexes = []
@@ -245,11 +263,11 @@ class changeDataSource(object):
         self.dlg.hide()
         self.changeDSTool.openDataSourceDialog(
             self.iface.layerTreeView().currentLayer()
-        )  # , self.badLayersHandler)
+        ) # , self.badLayersHandler)
 
     def unload(self):
         """
-        Disconnects from signals. Removes the plugin menu item and icon from QGIS GUI.
+        Disconnects from signals. Removes the plugin menu item and icon from QGIS GUI
         """
         self.iface.removeCustomActionForLayerType(self.changeDSActionVector)
         self.iface.removeCustomActionForLayerType(self.changeDSActionRaster)
@@ -264,7 +282,7 @@ class changeDataSource(object):
 
     def populateLayerTable(self):
         '''
-        method to write layer info in layer table
+        Method to write layer info in layer table
         '''
         self.changeDSTool.populateComboBox(
             self.dlg.datasourceCombo,
@@ -403,7 +421,7 @@ class changeDataSource(object):
 
     def browseAction(self,row):
         '''
-        method to open qgis browser dialog to get new datasource/provider
+        Method to open qgis browser dialog to get new datasource/provider
         '''
         layerId = self.dlg.layerTable.cellWidget(row,0).text()
         layerName = self.dlg.layerTable.cellWidget(row,1).text()
@@ -427,7 +445,7 @@ class changeDataSource(object):
 
     def getLabelWidget(self,txt,column, style = None):
         '''
-        method that returns a preformatted qlineedit widget
+        Method that returns a preformatted qlineedit widget
         '''
         edit = QLineEdit(parent = self.dlg.layerTable)
         idealWidth = QApplication.instance().fontMetrics().width(txt)
@@ -450,12 +468,17 @@ class changeDataSource(object):
         return edit
 
     def highlightCell(self,cell,newStyle):
+        '''
+        Method to highlight a cell in the table, setting a new stylesheet on the cell and marking it as changed
+        :param cell: the cell to be highlighted
+        :param newStyle: the new style to be applied to the cell
+        '''
         cell.setStyleSheet(newStyle)
         cell.changed = True
 
     def replaceDS(self):
         '''
-        method to replace the datasource string accordind to find/replace string or to expression result if valid
+        Method to replace the datasource string accordind to find/replace string or to expression result if valid
         '''
         self.replaceList=[]
         indexes = []
@@ -488,7 +511,7 @@ class changeDataSource(object):
 
     def applyDSChanges(self):#, reconcileUnhandled = False):
         '''
-        method to scan table row and apply the provider/datasource strings if changed
+        Method to scan table row and apply the provider/datasource strings if changed
         '''
 
         for row in range(0,self.dlg.layerTable.rowCount()):
@@ -517,7 +540,7 @@ class changeDataSource(object):
 
     def removeServiceLayers(self):
         '''
-        method to remove service properties layer, used for expression changes
+        Method to remove service properties layer, used for expression changes
         and unhandled layers group if empty
         '''
         # fix_print_with_import
@@ -528,14 +551,18 @@ class changeDataSource(object):
             pass
 
     def hideNonOGRCheckboxOption(self, state):
-        # Method to hide or show non OGR layers according to checkbox
+        '''
+        Method to hide or show non OGR layers according to checkbox
+        '''
         if state == Qt.Checked:
             self.hideNonOGR()
         else:
             self.showAll()
 
     def hideNonOGR(self):
-        # Method to hide non OGR layers
+        '''
+        Method to hide non OGR layers
+        '''
         for row in range(self.dlg.layerTable.rowCount()):
             layerId = self.dlg.layerTable.cellWidget(row, 0).text()
             rowLayer = QgsProject.instance().mapLayer(layerId)
@@ -543,14 +570,16 @@ class changeDataSource(object):
                 self.dlg.layerTable.hideRow(row)
 
     def showAll(self):
-        # Method to show all layers
+        '''
+        Method to show all layers
+        '''
         for row in range(self.dlg.layerTable.rowCount()):
             self.dlg.layerTable.showRow(row)
 
 
     def buttonBoxHub(self,kod):
         '''
-        method to handle button box clicking
+        Method to handle button box clicking
         '''
         # fix_print_with_import
         print(kod)
@@ -566,6 +595,12 @@ class changeDataSource(object):
             self.applyDSChanges()
 
     def reconcileUnhandled(self):
+        '''
+        Method to reconcile unhandled layers by applying changes to the data source.
+        This method calls the applyDSChanges function with the reconcileUnhandled
+        parameter set to True, indicating that the changes should account for any
+        unhandled layers that need reconciliation.
+        '''
         self.applyDSChanges(reconcileUnhandled = True)
 
     def run(self):
@@ -590,7 +625,7 @@ class changeDataSource(object):
 
 class browseLineEdit(QLineEdit):
     '''
-    class to provide custom resizable lineedit
+    Class to provide custom resizable lineedit
     '''
     buttonClicked = pyqtSignal(bool)
 
@@ -607,12 +642,21 @@ class browseLineEdit(QLineEdit):
         buttonSize = self.button.sizeHint()
 
         self.setStyleSheet('QLineEdit {padding-left: %dpx; }' % (buttonSize.width() + frameWidth + 1))
-        self.setMinimumSize(max(self.minimumSizeHint().width(), buttonSize.width() + frameWidth*2 + 2),
-                            max(self.minimumSizeHint().height(), buttonSize.height() + frameWidth*2 + 2))
+        self.setMinimumSize(
+            max(
+                self.minimumSizeHint().width(), buttonSize.width() + frameWidth * 2 + 2
+            ),
+            max(
+                self.minimumSizeHint().height(),
+                buttonSize.height() + frameWidth * 2 + 2,
+            ),
+        )
 
     def resizeEvent(self, event):
         buttonSize = self.button.sizeHint()
         frameWidth = self.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
-        self.button.move(self.rect().right() - frameWidth - buttonSize.width(),
-                         (self.rect().bottom() - buttonSize.height() + 1)/2)
+        self.button.move(
+            self.rect().right() - frameWidth - buttonSize.width(),
+            (self.rect().bottom() - buttonSize.height() + 1) / 2,
+        )
         super(browseLineEdit, self).resizeEvent(event)
