@@ -44,7 +44,7 @@ class changeDataSourceDialog(QtWidgets.QDialog, Ui_changeDataSourceDialogBase):
 
     closedDialog = pyqtSignal()
 
-    def closeEvent(self, in_event):
+    def closeEvent(self, inEvent):
         self.closedDialog.emit()
 
 class dataSourceBrowser(QtWidgets.QDialog, Ui_dataSourceBrowser):
@@ -72,10 +72,10 @@ class dataSourceBrowser(QtWidgets.QDialog, Ui_dataSourceBrowser):
 
     def getUriFromBrowser(self, index):
         uriItem = self.browserModel.dataItem(index)
-        uri_list = QgsMimeDataUtils.decodeUriList(self.browserModel.mimeData([index]))
+        uriList = QgsMimeDataUtils.decodeUriList(self.browserModel.mimeData([index]))
         try:
-            # print uri_list[0].providerKey, uri_list[0].uri
-            self.result = (uri_list[0].layerType, uri_list[0].providerKey, uri_list[0].uri)
+            # print uriList[0].providerKey, uriList[0].uri
+            self.result = (uriList[0].layerType, uriList[0].providerKey, uriList[0].uri)
             self.close()
             self.acceptedFlag = True
         except:

@@ -85,17 +85,17 @@ class changeDataSource(object):
         # Save reference to the QGIS interface
         self.iface = iface
         # initialize plugin directory
-        self.plugin_dir = os.path.dirname(__file__)
+        self.pluginDir = os.path.dirname(__file__)
         # initialize locale
         locale = QSettings().value('locale/userLocale')[0:2]
-        locale_path = os.path.join(
-            self.plugin_dir,
+        localePath = os.path.join(
+            self.pluginDir,
             'i18n',
             'changeDataSource_{}.qm'.format(locale))
 
-        if os.path.exists(locale_path):
+        if os.path.exists(localePath):
             self.translator = QTranslator()
-            self.translator.load(locale_path)
+            self.translator.load(localePath)
 
             if qVersion() > '4.3.3':
                 QCoreApplication.installTranslator(self.translator)
@@ -130,22 +130,22 @@ class changeDataSource(object):
         # noinspection PyTypeChecker, PyArgumentList, PyCallByClass
         return QCoreApplication.translate('changeDataSource_je-vee', message)
 
-    def add_action(
+    def addAction(
         self,
-        icon_path,
+        iconPath,
         text,
         callback,
-        enabled_flag=True,
-        add_to_menu=True,
-        add_to_toolbar=True,
-        status_tip=None,
+        enabledFlag=True,
+        addToMenu=True,
+        addToToolbar=True,
+        statusTip=None,
         whats_this=None,
         parent=None):
         """Add a toolbar icon to the toolbar.
 
-        :param icon_path: Path to the icon for this action. Can be a resource
+        :param iconPath: Path to the icon for this action. Can be a resource
             path (e.g. ':/plugins/foo/bar.png') or a normal file system path.
-        :type icon_path: str
+        :type iconPath: str
 
         :param text: Text that should be shown in menu items for this action.
         :type text: str
@@ -153,21 +153,21 @@ class changeDataSource(object):
         :param callback: Function to be called when the action is triggered.
         :type callback: function
 
-        :param enabled_flag: A flag indicating if the action should be enabled
+        :param enabledFlag: A flag indicating if the action should be enabled
             by default. Defaults to True.
-        :type enabled_flag: bool
+        :type enabledFlag: bool
 
-        :param add_to_menu: Flag indicating whether the action should also
+        :param addToMenu: Flag indicating whether the action should also
             be added to the menu. Defaults to True.
-        :type add_to_menu: bool
+        :type addToMenu: bool
 
-        :param add_to_toolbar: Flag indicating whether the action should also
+        :param addToToolbar: Flag indicating whether the action should also
             be added to the toolbar. Defaults to True.
-        :type add_to_toolbar: bool
+        :type addToToolbar: bool
 
-        :param status_tip: Optional text to show in a popup when mouse pointer
+        :param statusTip: Optional text to show in a popup when mouse pointer
             hovers over the action.
-        :type status_tip: str
+        :type statusTip: str
 
         :param parent: Parent widget for the new action. Defaults None.
         :type parent: QWidget
@@ -180,21 +180,21 @@ class changeDataSource(object):
         :rtype: QAction
         """
 
-        icon = QIcon(icon_path)
+        icon = QIcon(iconPath)
         action = QAction(icon, text, parent)
         action.triggered.connect(callback)
-        action.setEnabled(enabled_flag)
+        action.setEnabled(enabledFlag)
 
-        if status_tip is not None:
-            action.setStatusTip(status_tip)
+        if statusTip is not None:
+            action.setStatusTip(statusTip)
 
         if whats_this is not None:
             action.setWhatsThis(whats_this)
 
-        if add_to_toolbar:
+        if addToToolbar:
             self.toolbar.addAction(action)
 
-        if add_to_menu:
+        if addToMenu:
             self.iface.addPluginToVectorMenu(
                 self.menu,
                 action)
@@ -206,19 +206,19 @@ class changeDataSource(object):
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = os.path.join(self.plugin_dir,"icon.png")
-        self.add_action(
-            icon_path,
+        iconPath = os.path.join(self.pluginDir,"icon.png")
+        self.addAction(
+            iconPath,
             text=self.tr('changeDataSource_je-vee'),
             callback=self.run,
             parent=self.iface.mainWindow())
         self.changeDSActionVector = QAction(
-            QIcon(os.path.join(self.plugin_dir, "icon.png")),
+            QIcon(os.path.join(self.pluginDir, "icon.png")),
             "Change vector datasource",
             self.iface,
         )
         self.changeDSActionRaster = QAction(
-            QIcon(os.path.join(self.plugin_dir, "icon.png")),
+            QIcon(os.path.join(self.pluginDir, "icon.png")),
             "Change raster datasource",
             self.iface,
         )
@@ -366,7 +366,7 @@ class changeDataSource(object):
                 provider = layer.dataProvider().name()
                 if provider:
                     # Stores layer, provider and source
-                    obj = {"layer": layer, "provider_name": provider, "source": layer.source()}
+                    obj = {"layer": layer, "providerName": provider, "source": layer.source()}
 
                     # Separation
                     if provider == 'ogr':
@@ -378,7 +378,7 @@ class changeDataSource(object):
         ogrLayers.sort(key=lambda l: (l.get("name"), l.get("source")))
 
         # Sort non-'ogr' layers first by source provider name, name, then source
-        nonOgrLayers.sort(key=lambda l: (l.get("provider_name"), l.get("name"), l.get("source")))
+        nonOgrLayers.sort(key=lambda l: (l.get("providerName"), l.get("name"), l.get("source")))
 
         # Combine the sorted layers back together
         combinedLayers = ogrLayers + nonOgrLayers
@@ -387,11 +387,11 @@ class changeDataSource(object):
         for layer in combinedLayers:
             layerOriginal = layer
             layer = layer.get("layer")
-            provider = layerOriginal.get("provider_name")
+            provider = layerOriginal.get("providerName")
             provider = provider if provider != 'wms' else provider.upper()
             source = layerOriginal.get("source")
-            source_ext = os.path.splitext(source)[1] if provider == 'ogr' else 'WEB'
-            source_ext = source_ext.split('|')[0] if '|' in source_ext else source_ext
+            sourceExt = os.path.splitext(source)[1] if provider == 'ogr' else 'WEB'
+            sourceExt = sourceExt.split('|')[0] if '|' in sourceExt else sourceExt
             cellStyle = ""
             # print(layer.id())
 
@@ -405,7 +405,7 @@ class changeDataSource(object):
             self.dlg.layerTable.setCellWidget(lastRow, 1, self.getLabelWidget(str(layer.name()), 1, style = cellStyle))
 
             # Column "Extension"
-            self.dlg.layerTable.setCellWidget(lastRow, 2, self.getLabelWidget(str(source_ext), 2, style = cellStyle))
+            self.dlg.layerTable.setCellWidget(lastRow, 2, self.getLabelWidget(str(sourceExt), 2, style = cellStyle))
 
             # Sets provider
             # Column "Provider"
@@ -417,7 +417,7 @@ class changeDataSource(object):
             self.dlg.layerTable.setCellWidget(lastRow, 5, self.getButtonWidget(lastRow))
 
             layerDummyFields = self.layersPropLayer.fields()
-            # layerDummyFields.append(QgsField("source_ext", QVariant.String))
+            # layerDummyFields.append(QgsField("sourceExt", QVariant.String))
 
             layerDummyFeature = QgsFeature(layerDummyFields)
             if layer.type() == QgsMapLayer.VectorLayer:
@@ -438,7 +438,7 @@ class changeDataSource(object):
                     provider,
                     source,
                     layer.crs().authid(),
-                    source_ext,
+                    sourceExt,
                 ]
             )
             dummyFeatures.append(layerDummyFeature)
@@ -600,7 +600,7 @@ class changeDataSource(object):
             rowDatasourceChanging = rowDatasourceCell.changed
 
             if rowProviderChanging or rowDatasourceChanging:
-                # fix_print_with_import
+                # fixPrintWithImport
                 print(("ROWS", rowLayer, rowProvider, rowDatasource))
                 if self.changeDSTool.applyDataSource(rowLayer, rowProvider, rowDatasource):
                     resultStyle = "QLineEdit{background: green;}"
@@ -616,7 +616,7 @@ class changeDataSource(object):
         Method to remove service properties layer, used for expression changes
         and unhandled layers group if empty
         '''
-        # fix_print_with_import
+        # fixPrintWithImport
         print("removing")
         try:
             QgsProject.instance().removeMapLayer(self.layersPropLayer.id())
@@ -654,10 +654,10 @@ class changeDataSource(object):
         '''
         Method to handle button box clicking
         '''
-        # fix_print_with_import
+        # fixPrintWithImport
         print(kod)
         if kod == "Reset":
-            # fix_print_with_import
+            # fixPrintWithImport
             print("reset")
             self.removeServiceLayers()
             self.populateLayerTable()
