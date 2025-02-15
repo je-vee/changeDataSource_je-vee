@@ -252,7 +252,7 @@ class changeDataSource(object):
         self.dlg.hideNonOGRCheckbox.stateChanged.connect(self.hideNonOGRCheckboxOption)
         self.iface.newProjectCreated.connect(self.updateSession)
 
-        # Originally commented out => not functioning
+        # "handleBadLayers()" Originally commented out => not functioning
         # self.dlg.reconcileButton.clicked.connect(self.reconcileUnhandled)
         # self.dlg.handleBadLayersCheckbox.stateChanged.connect(self.handleBadLayerOption)
         # self.iface.initializationCompleted.connect(self.initHandleBadLayers)
@@ -466,7 +466,7 @@ class changeDataSource(object):
 
         # TODO: ?
         self.dlg.layerTable.setShowGrid(True)
-        
+
         # TODO: Make the columns sortable and filterable?
         # Trying to make the table sortable
         # self.dlg.layerTable.setSortingEnabled(True)

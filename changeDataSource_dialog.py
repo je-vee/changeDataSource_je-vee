@@ -45,6 +45,9 @@ class changeDataSourceDialog(QtWidgets.QDialog, Ui_changeDataSourceDialogBase):
     closedDialog = pyqtSignal()
 
     def closeEvent(self, inEvent):
+        """
+        Overrides the default closeEvent method in a dialog to emit a custom closedDialog signal when the dialog is closed
+        """
         self.closedDialog.emit()
 
 class dataSourceBrowser(QtWidgets.QDialog, Ui_dataSourceBrowser):
@@ -71,6 +74,14 @@ class dataSourceBrowser(QtWidgets.QDialog, Ui_dataSourceBrowser):
         self.acceptedFlag = None
 
     def getUriFromBrowser(self, index):
+        """
+        Retrieves the URI from the selected item in the browser.
+
+        :param index: The index of the selected item in the browser model.
+        :type index: QModelIndex
+        :raises: Sets self.result to a tuple of (layerType, providerKey, uri) if successful,
+                otherwise sets to (None, None, None) if there's an error or no valid URI.
+        """
         uriItem = self.browserModel.dataItem(index)
         uriList = QgsMimeDataUtils.decodeUriList(self.browserModel.mimeData([index]))
         try:
