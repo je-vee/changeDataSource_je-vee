@@ -18,3 +18,4 @@ deploy_plugin.bat
 pylintrc
 *.old
 /gitignore_folder
+*.lnk
