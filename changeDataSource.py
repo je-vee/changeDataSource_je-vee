@@ -52,7 +52,7 @@ from qgis.gui import QgsMessageBar
 # Initialize Qt resources from file resources.py
 from . import resources_rc
 # Import the code for the dialog
-from .changeDataSource_dialog import changeDataSourceDialog,dataSourceBrowser
+from .changeDataSource_dialog import changeDataSourceDialog, dataSourceBrowser
 from .setdatasource import setDataSource
 
 # ==============================
@@ -124,7 +124,7 @@ class changeDataSource(object):
         :returns: Translated version of message.
         :rtype: QString
         """
-        # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
+        # noinspection PyTypeChecker, PyArgumentList, PyCallByClass
         return QCoreApplication.translate('changeDataSource_je-vee', message)
 
     def add_action(
@@ -256,7 +256,7 @@ class changeDataSource(object):
         # self.iface.projectRead.connect(self.recoverUnhandledLayers)
         # self.initHandleBadLayers()
 
-    def setEmbeddedLayer(self,layer):
+    def setEmbeddedLayer(self, layer):
         """
         Set the layer as embedded layer in the layer tree.
         This means the layer will not be shown in the layer tree
@@ -320,12 +320,12 @@ class changeDataSource(object):
         self.dlg.layerTable.setRowCount(0)
 
         self.dlg.layerTable.setColumnCount(layerColumnCount)
-        self.dlg.layerTable.setHorizontalHeaderItem(0,QTableWidgetItem("ID"))
-        self.dlg.layerTable.setHorizontalHeaderItem(1,QTableWidgetItem("Layer Name"))
-        self.dlg.layerTable.setHorizontalHeaderItem(2,QTableWidgetItem("Extension"))
-        self.dlg.layerTable.setHorizontalHeaderItem(3,QTableWidgetItem("Provider"))
-        self.dlg.layerTable.setHorizontalHeaderItem(4,QTableWidgetItem("Data Source"))
-        self.dlg.layerTable.setHorizontalHeaderItem(5,QTableWidgetItem(""))
+        self.dlg.layerTable.setHorizontalHeaderItem(0, QTableWidgetItem("ID"))
+        self.dlg.layerTable.setHorizontalHeaderItem(1, QTableWidgetItem("Layer Name"))
+        self.dlg.layerTable.setHorizontalHeaderItem(2, QTableWidgetItem("Extension"))
+        self.dlg.layerTable.setHorizontalHeaderItem(3, QTableWidgetItem("Provider"))
+        self.dlg.layerTable.setHorizontalHeaderItem(4, QTableWidgetItem("Data Source"))
+        self.dlg.layerTable.setHorizontalHeaderItem(5, QTableWidgetItem(""))
 
         layersPropLayerDef = "Point?crs=epsg:3857&field=layerid:string(200)&field=layername:string(200)&field=layertype:string(20)&field=geometrytype:string(20)&field=provider:string(20)&field=datasource:string(250)&field=authid:string(20)&field=source_ext:string(20)"
 
@@ -396,22 +396,22 @@ class changeDataSource(object):
             self.dlg.layerTable.insertRow(lastRow)
             # Sets layer-id
             # (No column name, is hidden later)
-            self.dlg.layerTable.setCellWidget(lastRow,0,self.getLabelWidget(layer.id(),0,style = cellStyle))
+            self.dlg.layerTable.setCellWidget(lastRow, 0, self.getLabelWidget(layer.id(), 0, style = cellStyle))
             # Sets layer name
             # Column "Layer Name"
-            self.dlg.layerTable.setCellWidget(lastRow,1,self.getLabelWidget(str(layer.name()),1,style = cellStyle))
+            self.dlg.layerTable.setCellWidget(lastRow, 1, self.getLabelWidget(str(layer.name()), 1, style = cellStyle))
 
             # Column "Extension"
-            self.dlg.layerTable.setCellWidget(lastRow,2,self.getLabelWidget(str(source_ext),2,style = cellStyle))
+            self.dlg.layerTable.setCellWidget(lastRow, 2, self.getLabelWidget(str(source_ext), 2, style = cellStyle))
 
             # Sets provider
             # Column "Provider"
-            self.dlg.layerTable.setCellWidget(lastRow,3,self.getLabelWidget(str(provider),3,style = cellStyle))
+            self.dlg.layerTable.setCellWidget(lastRow, 3, self.getLabelWidget(str(provider), 3, style = cellStyle))
             # Sets source
             # Column "Data Source"
-            self.dlg.layerTable.setCellWidget(lastRow,4,self.getLabelWidget(str(source),4,style = cellStyle))
+            self.dlg.layerTable.setCellWidget(lastRow, 4, self.getLabelWidget(str(source), 4, style = cellStyle))
             # Sets the last button to browse the folder?
-            self.dlg.layerTable.setCellWidget(lastRow,5,self.getButtonWidget(lastRow))
+            self.dlg.layerTable.setCellWidget(lastRow, 5, self.getButtonWidget(lastRow))
 
             layerDummyFields = self.layersPropLayer.fields()
             # layerDummyFields.append(QgsField("source_ext", QVariant.String))
@@ -450,16 +450,16 @@ class changeDataSource(object):
         # Extension column
         # TODO: Store in variable
         self.dlg.layerTable.setColumnWidth(extensionColumnNum, extensionColumnWidth)
-        self.dlg.layerTable.horizontalHeader().setSectionResizeMode(extensionColumnNum,QHeaderView.Fixed)
+        self.dlg.layerTable.horizontalHeader().setSectionResizeMode(extensionColumnNum, QHeaderView.Fixed)
         # Provider column
-        # self.dlg.layerTable.horizontalHeader().setSectionResizeMode(providerColumnNum,QHeaderView.ResizeToContents)
+        # self.dlg.layerTable.horizontalHeader().setSectionResizeMode(providerColumnNum, QHeaderView.ResizeToContents)
         # self.dlg.layerTable.resizeColumnToContents(providerColumnNum)
         self.dlg.layerTable.setColumnWidth(providerColumnNum, providerColumnWidth)
-        self.dlg.layerTable.horizontalHeader().setSectionResizeMode(providerColumnNum,QHeaderView.Fixed) # was QHeaderView.Stretch
+        self.dlg.layerTable.horizontalHeader().setSectionResizeMode(providerColumnNum, QHeaderView.Fixed) # was QHeaderView.Stretch
 
         # Data Source column
-        self.dlg.layerTable.setColumnWidth(dataSourceColumnNum,30)
-        self.dlg.layerTable.horizontalHeader().setSectionResizeMode(dataSourceColumnNum,QHeaderView.Stretch) # was QHeaderView.Stretch
+        self.dlg.layerTable.setColumnWidth(dataSourceColumnNum, 30)
+        self.dlg.layerTable.horizontalHeader().setSectionResizeMode(dataSourceColumnNum, QHeaderView.Stretch) # was QHeaderView.Stretch
 
         # TODO: ?
         self.dlg.layerTable.setShowGrid(True)
@@ -467,7 +467,7 @@ class changeDataSource(object):
         # Trying to make the table sortable
         # self.dlg.layerTable.setSortingEnabled(True)
 
-    def getButtonWidget(self,row):
+    def getButtonWidget(self, row):
         """
         Creates a button widget for the specified row in the layer table.
 
@@ -480,18 +480,18 @@ class changeDataSource(object):
         :return: A QPushButton widget configured to invoke browseAction on click.
         :rtype: QPushButton
         """
-        edit = QPushButton("...",parent = self.dlg.layerTable)
-        edit.setSizePolicy(QSizePolicy.Ignored,QSizePolicy.Ignored)
+        edit = QPushButton("...", parent = self.dlg.layerTable)
+        edit.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
         edit.clicked.connect(lambda: self.browseAction(row))
         return edit
 
-    def browseAction(self,row):
+    def browseAction(self, row):
         '''
         Method to open qgis browser dialog to get new datasource/provider
         '''
         layerId = self.dlg.layerTable.cellWidget(row, layerIdColumnNum).text()
         layerName = self.dlg.layerTable.cellWidget(row, layerNameColumnNum).text()
-        newType,newProvider,newDatasource = dataSourceBrowser.uri(title = layerName)
+        newType, newProvider, newDatasource = dataSourceBrowser.uri(title = layerName)
         # check if databrowser return a incompatible layer type
         rowLayer = QgsProject.instance().mapLayer(layerId)
         enumLayerTypes = ("vector","raster","plugin")
@@ -509,7 +509,7 @@ class changeDataSource(object):
         if newProvider:
             self.dlg.layerTable.cellWidget(row, providerColumnNum).setText(newProvider)
 
-    def getLabelWidget(self,txt,column, style = None):
+    def getLabelWidget(self, txt, column, style = None):
         '''
         Method that returns a preformatted qlineedit widget
         '''
@@ -521,12 +521,12 @@ class changeDataSource(object):
         if column == providerColumnNum:
             edit.setMaximumWidth(providerColumnWidth)
         edit.setText(txt)
-        edit.setSizePolicy(QSizePolicy.Minimum,QSizePolicy.Ignored)
+        edit.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Ignored)
         if style:
             edit.setStyleSheet(style)
         else:
             # Green
-            edit.setStyleSheet("QLineEdit{background: rgba(0,190,0, 0%);}")
+            edit.setStyleSheet("QLineEdit{background: rgba(0, 190, 0, 0%);}")
         edit.column = column
         edit.changed = None
         if column == layerNameColumnNum:
@@ -536,7 +536,7 @@ class changeDataSource(object):
         edit.setCursorPosition(0)
         return edit
 
-    def highlightCell(self,cell,newStyle):
+    def highlightCell(self, cell, newStyle):
         '''
         Method to highlight a cell in the table, setting a new stylesheet on the cell and marking it as changed
         :param cell: the cell to be highlighted
@@ -561,7 +561,7 @@ class changeDataSource(object):
             for row in indexes:
                 self.replaceList.append(QgsProject.instance().mapLayer(self.dlg.layerTable.cellWidget(row, layerIdColumnNum).text()))
         else:
-            for row in range(0,self.dlg.layerTable.rowCount()):
+            for row in range(0, self.dlg.layerTable.rowCount()):
                 indexes.append(row)
                 self.replaceList.append(QgsProject.instance().mapLayer(self.dlg.layerTable.cellWidget(row, layerIdColumnNum).text()))
         for row in indexes:
@@ -574,7 +574,7 @@ class changeDataSource(object):
                 expResult = exp.evaluate(context)
                 cell.setText(expResult)
             else:
-                cell.setText(cell.text().replace(self.dlg.findEdit.text(),self.dlg.replaceEdit.text()))
+                cell.setText(cell.text().replace(self.dlg.findEdit.text(), self.dlg.replaceEdit.text()))
             if self.dlg.datasourceCombo.currentText() != "":
                 self.dlg.layerTable.cellWidget(row, providerColumnNum).setText(self.dlg.datasourceCombo.currentText())
 
@@ -583,7 +583,7 @@ class changeDataSource(object):
         Method to scan table row and apply the provider/datasource strings if changed
         '''
 
-        for row in range(0,self.dlg.layerTable.rowCount()):
+        for row in range(0, self.dlg.layerTable.rowCount()):
             rowProviderCell = self.dlg.layerTable.cellWidget(row, providerColumnNum)
             rowDatasourceCell = self.dlg.layerTable.cellWidget(row, dataSourceColumnNum)
             rowLayerID = self.dlg.layerTable.cellWidget(row, layerIdColumnNum).text()
@@ -597,8 +597,8 @@ class changeDataSource(object):
 
             if rowProviderChanging or rowDatasourceChanging:
                 # fix_print_with_import
-                print(("ROWS",rowLayer,rowProvider,rowDatasource))
-                if self.changeDSTool.applyDataSource(rowLayer,rowProvider,rowDatasource):
+                print(("ROWS", rowLayer, rowProvider, rowDatasource))
+                if self.changeDSTool.applyDataSource(rowLayer, rowProvider, rowDatasource):
                     resultStyle = "QLineEdit{background: green;}"
                 else:
                     resultStyle = "QLineEdit{background: red;}"
@@ -646,7 +646,7 @@ class changeDataSource(object):
             self.dlg.layerTable.showRow(row)
 
 
-    def buttonBoxHub(self,kod):
+    def buttonBoxHub(self, kod):
         '''
         Method to handle button box clicking
         '''

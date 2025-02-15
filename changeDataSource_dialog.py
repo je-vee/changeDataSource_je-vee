@@ -22,8 +22,6 @@
 """
 from __future__ import absolute_import
 
-import os
-
 from qgis.PyQt import QtGui, uic, QtWidgets
 from qgis.PyQt.QtCore import pyqtSignal
 from qgis.core import QgsBrowserModel, QgsMimeDataUtils
@@ -45,7 +43,7 @@ class changeDataSourceDialog(QtWidgets.QDialog, Ui_changeDataSourceDialogBase):
 
     closedDialog = pyqtSignal()
 
-    def closeEvent(self,evnt):
+    def closeEvent(self, in_event):
         self.closedDialog.emit()
 
 class dataSourceBrowser(QtWidgets.QDialog, Ui_dataSourceBrowser):
@@ -71,17 +69,17 @@ class dataSourceBrowser(QtWidgets.QDialog, Ui_dataSourceBrowser):
         self.buttonBox.rejected.connect(self.rejectedAction)
         self.acceptedFlag = None
 
-    def getUriFromBrowser(self,index):
+    def getUriFromBrowser(self, index):
         uriItem = self.browserModel.dataItem(index)
         uri_list = QgsMimeDataUtils.decodeUriList(self.browserModel.mimeData([index]))
         try:
-            # print uri_list[0].providerKey,uri_list[0].uri
-            self.result = (uri_list[0].layerType,uri_list[0].providerKey,uri_list[0].uri)
+            # print uri_list[0].providerKey, uri_list[0].uri
+            self.result = (uri_list[0].layerType, uri_list[0].providerKey, uri_list[0].uri)
             self.close()
             self.acceptedFlag = True
         except:
             # print "NO VALID URI"
-            self.result = (None,None,None)
+            self.result = (None, None, None)
 
     def acceptedAction(self):
         self.getUriFromBrowser(self.dataSourceTree.currentIndex())
@@ -101,4 +99,4 @@ class dataSourceBrowser(QtWidgets.QDialog, Ui_dataSourceBrowser):
         if dialog.acceptedFlag:
             return (dialog.result)
         else:
-            return (None,None,None)
+            return (None, None, None)

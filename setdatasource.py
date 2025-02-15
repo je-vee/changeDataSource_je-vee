@@ -56,10 +56,10 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
         '''
         Method used to open datasource browser dialog to get new provider/uri for the single layer
         '''
-        type,provider,fileName = dataSourceBrowser.uri()
+        type, provider, fileName = dataSourceBrowser.uri()
         enumLayerTypes = ("vector","raster","plugin")
         if type and enumLayerTypes[self.layer.type()] != type:
-            self.iface.messageBar().pushMessage("Error", "Layer type mismatch: %s/%s" % (enumLayerTypes[self.layer.type()],type), level=QgsMessageBar.CRITICAL, duration=4)
+            self.iface.messageBar().pushMessage("Error", "Layer type mismatch: %s/%s" % (enumLayerTypes[self.layer.type()], type), level=QgsMessageBar.CRITICAL, duration=4)
         else:
             if fileName:
                 self.lineEdit.setPlainText(fileName)
@@ -105,9 +105,9 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
             source = QgsProject.instance().readPath(source)
 
         if layer.type() == QgsMapLayer.VectorLayer:
-            self.populateComboBox(self.selectDatasourceCombo,list(self.vectorDSList.keys()),predef = provider)
+            self.populateComboBox(self.selectDatasourceCombo, list(self.vectorDSList.keys()), predef = provider)
         else:
-            self.populateComboBox(self.selectDatasourceCombo,list(self.rasterDSList.keys()),predef = provider)
+            self.populateComboBox(self.selectDatasourceCombo, list(self.rasterDSList.keys()), predef = provider)
         self.lineEdit.setPlainText(source)
         # self.selectDS(self.selectDatasourceCombo.currentIndex())
         # print source
@@ -138,7 +138,7 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
         '''
         Landing method clicking apply in button box
         '''
-        self.applyDataSource(self.layer,self.selectDatasourceCombo.currentText().lower().replace(' ',''),self.lineEdit.toPlainText())
+        self.applyDataSource(self.layer, self.selectDatasourceCombo.currentText().lower().replace(' ',''), self.lineEdit.toPlainText())
 
 
     def applyDataSource(self, applyLayer, newProvider, newDatasource):
@@ -162,7 +162,7 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
         if not probeLayer.isValid():
             self.iface.messageBar().pushMessage("Error", "New data source is not valid: "+newProvider+"|"+newDatasource, level=Qgis.Critical, duration=4)
             return None
-        # print "geometryTypes",probeLayer.geometryType(), applyLayer.geometryType()
+        # print "geometryTypes", probeLayer.geometryType(), applyLayer.geometryType()
 
         if applyLayer.type() == QgsMapLayer.VectorLayer and probeLayer.geometryType() != applyLayer.geometryType():
             self.iface.messageBar().pushMessage("Error", "Geometry type mismatch", level=Qgis.Critical, duration=4)
@@ -185,7 +185,7 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
         XMLMapLayers = XMLDocument.createElement("maplayers")
         XMLMapLayer = XMLDocument.createElement("maplayer")
         context = QgsReadWriteContext()
-        layer.writeLayerXml(XMLMapLayer,XMLDocument, context)
+        layer.writeLayerXml(XMLMapLayer, XMLDocument, context)
         # apply layer definition
         XMLMapLayer.firstChildElement("datasource").firstChild().setNodeValue(newDatasource)
         XMLMapLayer.firstChildElement("provider").firstChild().setNodeValue(newProvider)
@@ -228,6 +228,6 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
             if predefInList:
                 combo.setCurrentIndex(combo.findText(predefInList))
             else:
-                combo.insertItem(0,predef)
+                combo.insertItem(0, predef)
                 combo.setCurrentIndex(0)
         combo.blockSignals (False)
