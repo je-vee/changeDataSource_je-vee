@@ -38,7 +38,7 @@ import os.path
 
 class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
 
-    def __init__(self,parent):
+    def __init__(self, parent):
         QtWidgets.QDialog.__init__(self)
         self.parent = parent
         self.iface = parent.iface
@@ -71,21 +71,21 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
                     self.selectDatasourceCombo.addItem(provider)
                     self.selectDatasourceCombo.setCurrentIndex(self.selectDatasourceCombo.count()-1)
 
-    def selectDS(self,i):
+    def selectDS(self, i):
         '''
         Method to catch datasource combo edits. No longer used. Stay here for future uses.
         '''
         pass
 
-    def openDataSourceDialog(self,layer):#,badLayersHandler):
+    def openDataSourceDialog(self, layer): #, badLayersHandler):
         '''
         Method to prep and show single datasource edit dialog
         '''
         self.layer = layer
-        #self.badLayersHandler = badLayersHandler
+        # self.badLayersHandler = badLayersHandler
         self.setWindowTitle(layer.name())
         '''
-        #if layer is unhandled get unhandled parameters
+        # if layer is unhandled get unhandled parameters
         if self.parent.badLayersHandler.getActualLayersIds() and self.layer.id() in self.parent.badLayersHandler.getActualLayersIds():
 
             provider = self.parent.badLayersHandler.getUnhandledLayerFromActualId(self.layer.id())["provider"]
@@ -109,8 +109,8 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
         else:
             self.populateComboBox(self.selectDatasourceCombo,list(self.rasterDSList.keys()),predef = provider)
         self.lineEdit.setPlainText(source)
-        #self.selectDS(self.selectDatasourceCombo.currentIndex())
-        #print source
+        # self.selectDS(self.selectDatasourceCombo.currentIndex())
+        # print source
         self.show()
         self.raise_()
         self.activateWindow()
@@ -141,7 +141,7 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
         self.applyDataSource(self.layer,self.selectDatasourceCombo.currentText().lower().replace(' ',''),self.lineEdit.toPlainText())
 
 
-    def applyDataSource(self,applyLayer,newProvider,newDatasource):
+    def applyDataSource(self, applyLayer, newProvider, newDatasource):
         '''
         Method to verify applying datasource/provider before definitive change to avoid qgis crashes
         '''
@@ -162,7 +162,7 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
         if not probeLayer.isValid():
             self.iface.messageBar().pushMessage("Error", "New data source is not valid: "+newProvider+"|"+newDatasource, level=Qgis.Critical, duration=4)
             return None
-        #print "geometryTypes",probeLayer.geometryType(), applyLayer.geometryType()
+        # print "geometryTypes",probeLayer.geometryType(), applyLayer.geometryType()
 
         if applyLayer.type() == QgsMapLayer.VectorLayer and probeLayer.geometryType() != applyLayer.geometryType():
             self.iface.messageBar().pushMessage("Error", "Geometry type mismatch", level=Qgis.Critical, duration=4)
@@ -189,7 +189,7 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
         # apply layer definition
         XMLMapLayer.firstChildElement("datasource").firstChild().setNodeValue(newDatasource)
         XMLMapLayer.firstChildElement("provider").firstChild().setNodeValue(newProvider)
-        if extent: #if a new extent (for raster) is provided it is applied to the layer
+        if extent: # if a new extent (for raster) is provided it is applied to the layer
             XMLMapLayerExtent = XMLMapLayer.firstChildElement("extent")
             XMLMapLayerExtent.firstChildElement("xmin").firstChild().setNodeValue(str(extent.xMinimum()))
             XMLMapLayerExtent.firstChildElement("xmax").firstChild().setNodeValue(str(extent.xMaximum()))
@@ -205,7 +205,7 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
         self.iface.mapCanvas().refresh()
         self.iface.layerTreeView().refreshLayerSymbology(layer.id())
 
-    def populateComboBox(self,combo,list,dataPayload = None,predef = None,sort = None):
+    def populateComboBox(self, combo, in_list, dataPayload = None, predef = None, sort = None):
         '''
         Procedure to fill specified combobox with provided list
         '''
@@ -213,7 +213,7 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
         combo.clear()
         model=QStandardItemModel(combo)
         predefInList = None
-        for elem in list:
+        for elem in in_list:
             try:
                 item = QStandardItem(str(elem))
             except TypeError:

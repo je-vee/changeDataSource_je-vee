@@ -31,10 +31,21 @@ from builtins import range
 from builtins import object
 import os.path
 
-from PyQt5.QtCore import *
+from PyQt5.QtCore import Qt, QSettings, QCoreApplication, pyqtSignal
 from PyQt5.QtGui import *
 from PyQt5.QtXml import *
-from PyQt5.QtWidgets import *
+from PyQt5.QtWidgets import (
+    QApplication,
+    QWidget,
+    QTableWidget,
+    QTableWidgetItem,
+    QLineEdit,
+    QAction,
+    QDialogButtonBox,
+    QPushButton,
+    QSizePolicy,
+    QHeaderView,
+)
 from qgis.core import *
 from qgis.gui import QgsMessageBar
 
@@ -373,7 +384,7 @@ class changeDataSource(object):
         for layer in combinedLayers:
             layerOriginal = layer
             layer = layer.get("layer")
-            provider = layerOriginal.get("provider_name") 
+            provider = layerOriginal.get("provider_name")
             provider = provider if provider != 'wms' else provider.upper()
             source = layerOriginal.get("source")
             source_ext = os.path.splitext(source)[1] if provider == 'ogr' else 'WEB'
@@ -445,7 +456,7 @@ class changeDataSource(object):
         # self.dlg.layerTable.resizeColumnToContents(providerColumnNum)
         self.dlg.layerTable.setColumnWidth(providerColumnNum, providerColumnWidth)
         self.dlg.layerTable.horizontalHeader().setSectionResizeMode(providerColumnNum,QHeaderView.Fixed) # was QHeaderView.Stretch
-        
+
         # Data Source column
         self.dlg.layerTable.setColumnWidth(dataSourceColumnNum,30)
         self.dlg.layerTable.horizontalHeader().setSectionResizeMode(dataSourceColumnNum,QHeaderView.Stretch) # was QHeaderView.Stretch

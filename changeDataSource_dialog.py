@@ -35,12 +35,12 @@ class changeDataSourceDialog(QtWidgets.QDialog, Ui_changeDataSourceDialogBase):
     def __init__(self, parent=None):
         """Constructor."""
         super(changeDataSourceDialog, self).__init__(parent)
-        #QtWidgets.QDialog.__init__(self)
+        # QtWidgets.QDialog.__init__(self)
         # Set up the user interface from Designer.
         # After setupUI you can access any designer object by doing
         # self.<objectname>, and you can use autoconnect slots - see
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
-        # #widgets-and-dialogs-with-auto-connect
+        # widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
 
     closedDialog = pyqtSignal()
@@ -52,13 +52,14 @@ class dataSourceBrowser(QtWidgets.QDialog, Ui_dataSourceBrowser):
 
     def __init__(self, parent=None):
         """Constructor."""
+        # TODO: Change to newer file browser
         super(dataSourceBrowser, self).__init__(parent)
-        #QtWidgets.QDialog.__init__(self)
+        # QtWidgets.QDialog.__init__(self)
         # Set up the user interface from Designer.
         # After setupUI you can access any designer object by doing
         # self.<objectname>, and you can use autoconnect slots - see
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
-        # #widgets-and-dialogs-with-auto-connect
+        # widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
         self.browserModel = QgsBrowserModel()
         self.browserModel.initialize()
@@ -74,12 +75,12 @@ class dataSourceBrowser(QtWidgets.QDialog, Ui_dataSourceBrowser):
         uriItem = self.browserModel.dataItem(index)
         uri_list = QgsMimeDataUtils.decodeUriList(self.browserModel.mimeData([index]))
         try:
-            #print uri_list[0].providerKey,uri_list[0].uri
-            self.result =  (uri_list[0].layerType,uri_list[0].providerKey,uri_list[0].uri)
+            # print uri_list[0].providerKey,uri_list[0].uri
+            self.result = (uri_list[0].layerType,uri_list[0].providerKey,uri_list[0].uri)
             self.close()
             self.acceptedFlag = True
         except:
-            #print "NO VALID URI"
+            # print "NO VALID URI"
             self.result = (None,None,None)
 
     def acceptedAction(self):
