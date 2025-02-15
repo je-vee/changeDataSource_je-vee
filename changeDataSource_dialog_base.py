@@ -107,4 +107,6 @@ class Ui_changeDataSourceDialogBase(object):
         self.hideNonOGRCheckbox.setText(_translate("changeDataSourceDialogBase", "Hide Non OGR Layers"))
         self.handleBadLayersCheckbox.setText(_translate("changeDataSourceDialogBase", "Handle bad layers"))
         self.reconcileButton.setText(_translate("changeDataSourceDialogBase", "Reconcile unhandled"))
+
+# TODO: ?
 from qgsfieldexpressionwidget import QgsFieldExpressionWidget
