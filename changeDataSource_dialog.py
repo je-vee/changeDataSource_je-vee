@@ -25,6 +25,7 @@ from __future__ import absolute_import
 from qgis.PyQt import QtGui, uic, QtWidgets
 from qgis.PyQt.QtCore import pyqtSignal
 from qgis.core import QgsBrowserModel, QgsMimeDataUtils
+
 from .changeDataSource_dialog_base import Ui_changeDataSourceDialogBase
 from .browsedatasource import Ui_dataSourceBrowser
 
@@ -97,6 +98,6 @@ class dataSourceBrowser(QtWidgets.QDialog, Ui_dataSourceBrowser):
         result = dialog.exec_()
         dialog.show()
         if dialog.acceptedFlag:
-            return (dialog.result)
+            return dialog.result
         else:
             return (None, None, None)

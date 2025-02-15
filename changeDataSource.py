@@ -27,8 +27,10 @@
 """
 from __future__ import print_function
 from __future__ import absolute_import
+
 from builtins import range
 from builtins import object
+
 import os.path
 
 from PyQt5.QtCore import Qt, QSettings, QCoreApplication, pyqtSignal
@@ -46,6 +48,7 @@ from PyQt5.QtWidgets import (
     QSizePolicy,
     QHeaderView,
 )
+
 from qgis.core import *
 from qgis.gui import QgsMessageBar
 
@@ -463,6 +466,7 @@ class changeDataSource(object):
 
         # TODO: ?
         self.dlg.layerTable.setShowGrid(True)
+        
         # TODO: Make the columns sortable and filterable?
         # Trying to make the table sortable
         # self.dlg.layerTable.setSortingEnabled(True)

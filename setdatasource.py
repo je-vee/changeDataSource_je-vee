@@ -24,16 +24,17 @@ from __future__ import absolute_import
 
 from builtins import str
 from builtins import range
+
 from qgis.core import *
+from qgis.PyQt import QtCore, QtGui, QtWidgets
+from qgis.gui import QgsManageConnectionsDialog, QgsMessageBar
+
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-from qgis.PyQt import QtCore, QtGui, QtWidgets
 from PyQt5.QtXml import *
+
 from .ui_changeDSDialog import Ui_changeDataSourceDialog
 from .changeDataSource_dialog import dataSourceBrowser
-
-from qgis.gui import QgsManageConnectionsDialog, QgsMessageBar
-import os.path
 
 
 class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
@@ -56,9 +57,11 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
         '''
         Method used to open datasource browser dialog to get new provider/uri for the single layer
         '''
+        # TODO: Rename default type to something else
         type, provider, fileName = dataSourceBrowser.uri()
         enumLayerTypes = ("vector","raster","plugin")
         if type and enumLayerTypes[self.layer.type()] != type:
+            # TODO: Convert to f-string
             self.iface.messageBar().pushMessage("Error", "Layer type mismatch: %s/%s" % (enumLayerTypes[self.layer.type()], type), level=QgsMessageBar.CRITICAL, duration=4)
         else:
             if fileName:
@@ -180,7 +183,7 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
             qgisVersionOk = True
         else:
             qgisVersionOk = False
-            
+
         XMLDocument = QDomDocument("style")
         XMLMapLayers = XMLDocument.createElement("maplayers")
         XMLMapLayer = XMLDocument.createElement("maplayer")
