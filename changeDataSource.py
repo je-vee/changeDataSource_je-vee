@@ -253,6 +253,8 @@ class changeDataSource(object):
         self.dlg.buttonBox.button(QDialogButtonBox.Apply).clicked.connect(lambda: self.buttonBoxHub("Apply"))
         self.dlg.buttonBox.button(QDialogButtonBox.Cancel).clicked.connect(lambda: self.buttonBoxHub("Cancel"))
         self.dlg.closedDialog.connect(self.removeServiceLayers)
+        # To handle closing the dialog with ESC key
+        self.dlg.rejected.connect(self.removeServiceLayers)
         self.dlg.hideNonOGRCheckbox.stateChanged.connect(self.hideNonOGRCheckboxOption)
         self.iface.newProjectCreated.connect(self.updateSession)
 
