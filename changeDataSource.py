@@ -230,9 +230,13 @@ class changeDataSource(object):
         )
         self.changeDSTool = setDataSource(self, )
         self.browserDialog = dataSourceBrowser()
-        # self.dlg.hideNonOGRCheckbox.hide()
+
+        # Since these do not have any connected function set up, disable the buttons
         # self.dlg.handleBadLayersCheckbox.hide()
         # self.dlg.reconcileButton.hide()
+        for btn in ["handleBadLayersCheckbox", "reconcileButton"]:
+            getattr(self.dlg, btn).setDisabled(True)
+            getattr(self.dlg, btn).setToolTip("Functionality not yet implemented")
 
         self.connectSignals()
         self.session = 0
@@ -350,19 +354,18 @@ class changeDataSource(object):
 
         # Retrieve all layers from the project
         allLayers = projectInstance.mapLayers().values()
+        
+        # Separates the layers that this script creates to be removed
+        # Others to be processed
+        layersToRemoveArr = [l.id() for l in allLayers if l.name() == layerTableName]
+        layersToProcess = [l for l in allLayers if l.name() != layerTableName]
 
         # Separate layers into those with 'ogr' provider and others
-        ogrLayers = []
-        nonOgrLayers = []
+        ogrLayers = list()
+        nonOgrLayers = list()
 
-        for layer in allLayers:
-            # Checks that the layer is not the same as this script creates
-            if layer.name() == layerTableName:
-                # If found, removes from project
-                # TODO: Check performance hit and possibly remove
-                projectInstance.removeMapLayer(layer.id())
-            # Checks to consider only Vectors and Rasters
-            elif layer.type() in (QgsMapLayer.VectorLayer, QgsMapLayer.RasterLayer):
+        for layer in layersToProcess:
+            if layer.type() in (QgsMapLayer.VectorLayer, QgsMapLayer.RasterLayer):
                 provider = layer.dataProvider().name()
                 if provider:
                     # Stores layer, provider and source
@@ -373,6 +376,9 @@ class changeDataSource(object):
                         ogrLayers.append(obj)
                     else:
                         nonOgrLayers.append(obj)
+
+        # Remove the wanted layers at once
+        projectInstance.removeMapLayers(layersToRemoveArr)
 
         # Sort layers with 'ogr' provider by name, then source
         ogrLayers.sort(key=lambda l: (l.get("name"), l.get("source")))
@@ -502,8 +508,7 @@ class changeDataSource(object):
         if newType and enumLayerTypes[rowLayer.type()] != newType:
             self.iface.messageBar().pushMessage(
                 "Error",
-                "Layer type mismatch %s/%s"
-                % (enumLayerTypes[rowLayer.type()], newType),
+                f"Layer type mismatch {enumLayerTypes[rowLayer.type()]}/{newType}",
                 level=QgsMessageBar.CRITICAL,
                 duration=4,
             )
