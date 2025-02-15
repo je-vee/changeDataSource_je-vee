@@ -139,7 +139,7 @@ class changeDataSource(object):
         addToMenu=True,
         addToToolbar=True,
         statusTip=None,
-        whats_this=None,
+        whatsThis=None,
         parent=None):
         """Add a toolbar icon to the toolbar.
 
