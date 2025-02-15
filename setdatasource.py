@@ -150,15 +150,15 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
         '''
         self.hide()
         # new layer import
-        # fix_print_with_import
+        # fixPrintWithImport
         print("applyDataSource", applyLayer.type())
         if applyLayer.type() == QgsMapLayer.VectorLayer:
-            # fix_print_with_import
+            # fixPrintWithImport
             print("vector")
             probeLayer = QgsVectorLayer(newDatasource,"probe", newProvider)
             extent = None
         else:
-            # fix_print_with_import
+            # fixPrintWithImport
             print("raster")
             probeLayer = QgsRasterLayer(newDatasource,"probe", newProvider)
             extent = probeLayer.extent()
@@ -208,7 +208,7 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
         self.iface.mapCanvas().refresh()
         self.iface.layerTreeView().refreshLayerSymbology(layer.id())
 
-    def populateComboBox(self, combo, in_list, dataPayload = None, predef = None, sort = None):
+    def populateComboBox(self, combo, inList, dataPayload = None, predef = None, sort = None):
         '''
         Procedure to fill specified combobox with provided list
         '''
@@ -216,7 +216,7 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
         combo.clear()
         model=QStandardItemModel(combo)
         predefInList = None
-        for elem in in_list:
+        for elem in inList:
             try:
                 item = QStandardItem(str(elem))
             except TypeError:

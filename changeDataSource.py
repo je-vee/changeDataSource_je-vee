@@ -172,7 +172,7 @@ class changeDataSource(object):
         :param parent: Parent widget for the new action. Defaults None.
         :type parent: QWidget
 
-        :param whats_this: Optional text to show in the status bar when the
+        :param whatsThis: Optional text to show in the status bar when the
             mouse pointer hovers over the action.
 
         :returns: The action that was created. Note that the action is also
@@ -188,8 +188,8 @@ class changeDataSource(object):
         if statusTip is not None:
             action.setStatusTip(statusTip)
 
-        if whats_this is not None:
-            action.setWhatsThis(whats_this)
+        if whatsThis is not None:
+            action.setWhatsThis(whatsThis)
 
         if addToToolbar:
             self.toolbar.addAction(action)
